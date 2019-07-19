@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tabColor1">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <android.support.v7.widget.Toolbar
+                    android:id="@+id/toolbar2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp"
+                    android:background="?attr/colorPrimary"
+                    android:minHeight="?attr/actionBarSize"
+                    android:theme="?attr/actionBarTheme"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/addAirportLocationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
+                    android:text="Add Airport"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    app:layout_constraintBottom_toBottomOf="@+id/toolbar2"
+                    app:layout_constraintStart_toStartOf="@+id/toolbar2"
+                    app:layout_constraintTop_toTopOf="@+id/toolbar2" />
+            </android.support.constraint.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/airportIDTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Airport ID"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/airportIDEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/kmsp"
+                android:inputType="textPersonName"
+                android:textColor="@color/textSelectedTabColor" />
+
+            <TextView
+                android:id="@+id/airportNameTextView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Airport Name"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/airportNameEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Minneapolis-St. Paul Airport"
+                android:inputType="textPersonName"
+                android:textColor="@color/textSelectedTabColor" />
+
+            <TextView
+                android:id="@+id/cityTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="City"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/cityEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Minneapolis"
+                android:inputType="textPersonName"
+                android:textColor="@color/textSelectedTabColor" />
+
+            <TextView
+                android:id="@+id/stateTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="State"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/stateEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="Minnesota"
+                android:inputType="textPersonName"
+                android:textColor="@color/textSelectedTabColor" />
+
+            <TextView
+                android:id="@+id/countryTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Country"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/countryEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="United States"
+                android:inputType="textPersonName"
+                android:textColor="@color/textSelectedTabColor" />
+
+            <TextView
+                android:id="@+id/rwyNumTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Number of runways (tipically even)"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/rwyCountEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="6"
+                android:inputType="number"
+                android:textColor="@color/textSelectedTabColor" />
+
+        </LinearLayout>
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>

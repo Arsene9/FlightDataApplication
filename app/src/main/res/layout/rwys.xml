@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/textSelectedTabColor">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="50dp">
+
+            <TextView
+                android:id="@+id/rwyBoxTitleTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="TextView"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.1" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/rwyNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Runway Name"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/rwyNameEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Polo"
+            android:inputType="textPersonName" />
+
+        <TextView
+            android:id="@+id/lengthTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Length (in ft)"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/lengthEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="1258"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/surfaceTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Surface"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/surfaceEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="Concret"
+            android:inputType="textPersonName" />
+
+        <TextView
+            android:id="@+id/hdgTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Heading"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/hdgEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="33"
+            android:inputType="number" />
+
+        <TextView
+            android:id="@+id/ilsIDTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ILS ID"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/ilsIDEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="NAM"
+            android:inputType="textPersonName|text" />
+
+        <TextView
+            android:id="@+id/ilsFreqTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="ILS Frequency(in Hz)"
+            android:textSize="18sp" />
+
+        <EditText
+            android:id="@+id/ilsFreqEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="109.50"
+            android:inputType="number|numberDecimal" />
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/prevButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:text="Prev"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <Button
+                android:id="@+id/nextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="60dp"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="1"
+                android:text="Next"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
+
+        </android.support.constraint.ConstraintLayout>
+    </LinearLayout>
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/tabSelectedColor">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintBottom_toTopOf="@+id/fpTabLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/fpTabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:background="@color/tabColor1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:tabSelectedTextColor="@color/cardview_light_background"
+        app:tabTextColor="@color/textSelectedTabColor">
+
+        <android.support.design.widget.TabItem
+            android:id="@+id/aircraftTab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/aircraft" />
+
+        <android.support.design.widget.TabItem
+            android:id="@+id/departureTab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/departure" />
+
+        <android.support.design.widget.TabItem
+            android:id="@+id/arrivalTab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/arrival" />
+
+    </android.support.design.widget.TabLayout>
+
+    <fragment
+        android:id="@+id/aircraftFragment"
+        android:name="com.example.naftech.flightdataapplication.TabManager.AircraftFragment"
+        android:layout_width="match_parent"
+        android:layout_height="505dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fpTabLayout"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <fragment
+        android:id="@+id/arrivalFragment"
+        android:name="com.example.naftech.flightdataapplication.TabManager.ArrivalFragment"
+        android:layout_width="match_parent"
+        android:layout_height="505dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fpTabLayout"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <fragment
+        android:id="@+id/departureFragment"
+        android:name="com.example.naftech.flightdataapplication.TabManager.DepartureFragment"
+        android:layout_width="match_parent"
+        android:layout_height="505dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fpTabLayout"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="185dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="@string/flight_plan"
+        android:textColor="@android:color/background_light"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/fpTabLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/toolbar" />
+
+</android.support.constraint.ConstraintLayout>

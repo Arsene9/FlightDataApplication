@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#37474F</color>
+    <color name="colorPrimaryDark">#263238</color>
+    <color name="colorAccent">#455A64</color>
+    <color name="taskBarColor1">#263238</color>
+    <color name="toolBarColor1">#37474F</color>
+    <color name="tabColor1">#455A64</color>
+    <color name="tabSelectedColor">#546E7A</color>
+    <color name="textSelectedTabColor">#78909C</color>
+</resources>

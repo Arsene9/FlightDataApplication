@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="800dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/departureAirportTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/departure_airport"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/departureAirportLocationACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/kmsp"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/destinationAirportTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/destination_airport"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/destinationAirporACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/egcc"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/departureGateParkingTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/Departure_Gate_parking"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/departureGateParkingACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/e22"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/arrivalGateParkingTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/Arrival_Gate_parking"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/arrivalGateParkingACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_12"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/rwyTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/runway"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/departureRwyACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_31l"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/cruiseAltitudeTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/cruise_altitude"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/cruiseAltitudeACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_12000"
+                android:inputType="number"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/distanceEstimateTextView5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/estimated_trip_distance_in_nm"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/distanceEstimateACTV5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_300"
+                android:inputType="number|numberDecimal"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/flightTimeEstTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/estimated_flight_time"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/flightTimeEstACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/hh_mm_ss"
+                android:inputType="text"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/departureTimeTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/departure_time_local_time"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/departureTimeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/hh_mm_ss"
+                android:inputType="date|text|time" />
+
+            <TextView
+                android:id="@+id/arrivalTimeTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/arrival_time"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/arrivalTimeEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/hh_mm_ss"
+                android:inputType="text" />
+
+            <TextView
+                android:id="@+id/departureFuelTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/departure_fuel_in_gal"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/departureFuelACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_4000"
+                android:inputType="number|numberDecimal"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/fuelWeightTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/fuel_weight_in_lb"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/fuelWeightACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_2300"
+                android:inputType="number|numberDecimal"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/grossWeightTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/gross_weight_in_lb"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/grossWeightACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_3200"
+                android:inputType="number|numberDecimal"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/payloadWeightTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/payload_weight_in_lb"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/payloadWeightACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_4500"
+                android:inputType="number"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/climbSpeedTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/climb_speed_in_kts"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/climbSpeedACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_250"
+                android:inputType="number"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/cruiseSpeedTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/cruise_speed_in_kts"
+                android:textColor="@android:color/white"
+                android:textSize="18sp" />
+
+            <AutoCompleteTextView
+                android:id="@+id/cruiseSpeedACTV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/_280"
+                android:inputType="number"
+                android:textSize="18sp" />
+
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="100dp">
+
+                <Button
+                    android:id="@+id/saveDataButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/textSelectedTabColor"
+                    android:text="Save"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.498"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+            </android.support.constraint.ConstraintLayout>
+
+        </LinearLayout>
+    </ScrollView>
+</android.support.constraint.ConstraintLayout>
