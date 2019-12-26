@@ -14,20 +14,19 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
 import com.example.naftech.flightdataapplication.R;
 
-import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 
+import BusinessObjectLayer.Aircraft;
 import BusinessObjectLayer.Arrival;
 import BusinessObjectLayer.Departure;
 import BusinessObjectLayer.FlightPlan;
@@ -54,12 +53,14 @@ public class DepartureFragment extends Fragment {
     private List<String> lList, depRwyList, arrRwyList;
     private Calendar calendar;
     private TimePickerDialog timePicker;
+    private CommonMethod cm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         dbMan = DatabaseManager.getInstance(getContext());
+        cm = new CommonMethod();
         departLocInfo = new Location();
         arriveLocInfo = new Location();
         flightPlanInfo = new FlightPlan();
@@ -84,13 +85,20 @@ public class DepartureFragment extends Fragment {
 
         locList.addAll(dbMan.getLocations());
         for(Location l : locList){
-            lList.add(l.getAirportID() + " " + l.getCity() + " " + l.getCountry());
+            lList.add(l.getAirportID() + " "+ l.getAirportName() + " " + l.getCity() + " " + l.getCountry());
 //            dbMan.deleteLocation(l);
         }
+
 //        arriveInfo.setArrivalTime("7/10/2019 20:16:30");
-//        arriveInfo.setGateParkingNameExpected("G12");
-//        arriveInfo.setLocationID(1);
+//        arriveInfo.setGateParking("G12");
+//        arriveInfo.setLocationID(3);
 //        dbMan.addArrival(arriveInfo);
+//        cm.messageToaster(getContext(), arriveInfo.listArrival());
+//        List<String> data = new ArrayList<>();
+//        for(Arrival arrv : dbMan.getArrivals()){
+//            data.add(arrv.listArrival());
+//        }
+//        cm.save(getContext(), "arrival.txt", data);
 
     }
 
@@ -209,7 +217,7 @@ public class DepartureFragment extends Fragment {
             departInfo.setLocationID(departLocInfo.getLocationID());
             arriveInfo.setLocationID(arriveLocInfo.getLocationID());
             departInfo.setGateParkingName(departGate.getText().toString());
-            arriveInfo.setGateParkingNameExpected(arriveGate.getText().toString());
+            arriveInfo.setGateParking(arriveGate.getText().toString());
             flightPlanInfo.setCruiseAltitude(Integer.parseInt(cruiseAltitude.getText().toString()));
             flightPlanInfo.setTripDistanceEstimate(Float.parseFloat(flightDistEst.getText().toString()));
             flightPlanInfo.setTripDurationEstimate(flightTimeEst.getText().toString());
@@ -228,8 +236,49 @@ public class DepartureFragment extends Fragment {
                 flightPlanInfo.setDepartureID(departInfo.getDepartureID());
                 flightPlanInfo.setfPStatus("In Progress");
 
+                ///Save data to file
+                List<String> data = new ArrayList<>();
+                data.add("AIRCRAFT_ID;AIRLINE_NAME;AIRCRAFT_TYPE;MANUFACTURER;TAIL_NUMBER;" +
+                        "CALL_SIGN;FLIGHT_NUMBER");
+                for(Aircraft airC : dbMan.getAirCrafts()){
+                    data.add(airC.listAircrafts());
+                }
+                cm.save(getContext(),"aircrafts.txt", data);
+
+                data.clear();
+                data.add("DEPARTURE_ID;LOCATION_ID;GATE_PARKING;DEPARTURE_TIME");
+                for(Departure dep : dbMan.getDepartures()){
+                    data.add(dep.listDeparture());
+                }
+                cm.save(getContext(),"departure.txt", data);
+
+                data.clear();
+                data.add("LOCATION_ID;AIRPORT;AIRPORT_NAME;CITY;STATE_NAME;COUNTRY");
+                for(Location loc : dbMan.getLocations()){
+                    data.add(loc.listLocation());
+                }
+                cm.save(getContext(),"location.txt", data);
+
+                data.clear();
+                data.add("RUNWAY_ID;RUNWAY_NAME;RUNWAY_LENGTH;RUNWAY_SURFACE;RUNWAY_HEADING;" +
+                        "RUNWAY_ILS_ID;ILS_FREQUENCY;LOCATION");
+                for(Runway rwy : dbMan.getRwys()){
+                    data.add(rwy.listRunway());
+                }
+                cm.save(getContext(),"runway.txt", data);
+
+                data.clear();
+                data.add("FLIGHT_PLAN_ID;ESTIMATE_TRIP_TIME;DEPARTURE_FUEL;AIRCRAFT;DEPARTURE" +
+                        "ARRIVAL;ACTUAL_NUMBERS;ESTIMATE_TRIP_DISTANCE;CLIMB_SPEED;CRUISE_SPPED;" +
+                        "CRUISE_ALTITUDE;PAYLOAD_WEIGHT;FUEL_WEIGHT;GROSS_WEIGHT;FLIGHT_PLAN_STATUS");
+                for(FlightPlan fp : dbMan.getFlightPlans()){
+                    data.add(fp.listFlightPlan());
+                }
+                data.add(flightPlanInfo.listFlightPlan());
+                cm.save(getContext(),"flightplan.txt", data);
+
                 saveBtn.setVisibility(View.GONE);
-                messageToaster("Flight plan is now in progress");
+                cm.messageToaster(getActivity(),"Flight plan is now in progress");
             }
         }
     };
@@ -239,7 +288,7 @@ public class DepartureFragment extends Fragment {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             departLocInfo = locList.get(lList.indexOf(departArp.getText().toString()));
 
-            departArp.setText(departLocInfo.getAirportID());
+            departArp.setText(departLocInfo.getAirportID() + " " + departLocInfo.getAirportName());
             //messageToaster(String.valueOf(departLocInfo.getLocationID())+ " " + departLocInfo.getAirportID());
             departureRwyList.addAll(dbMan.getRwys(departLocInfo.getLocationID()));
             for(Runway r : departureRwyList){
@@ -261,7 +310,7 @@ public class DepartureFragment extends Fragment {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             arriveLocInfo = locList.get(lList.indexOf(arriveArp.getText().toString()));
 
-            arriveArp.setText(arriveLocInfo.getAirportID());
+            arriveArp.setText(arriveLocInfo.getAirportID() + " " + arriveLocInfo.getAirportName());
             arrivalRwyList.addAll(dbMan.getRwys(arriveLocInfo.getLocationID()));
             for(Runway r : arrivalRwyList){
                 arrRwyList.add(r.getName() + "   " + r.getLength() + "ft  " + r.getILS_ID()
@@ -296,9 +345,5 @@ public class DepartureFragment extends Fragment {
 
         departArp.setDropDownWidth(900);
         arriveArp.setDropDownWidth(900);
-    }
-
-    private void messageToaster(String msg){
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
     }
 }

@@ -18,7 +18,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     private static DatabaseManager dbHandlerInstance = null;
     private static final String DATABASE_NAME = "FlightPlan";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
     public static synchronized DatabaseManager getInstance(Context context) {
 
@@ -70,6 +70,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     //public boolean update()
 
+    public boolean restoreActualData(List<ActualData> actualDataList){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return ActualTable.restoreDB(db, actualDataList);
+    }
+
     public List<ActualData> getActuals(){
         SQLiteDatabase db = this.getReadableDatabase();
         return ActualTable.getItems(db);
@@ -84,6 +89,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public boolean deleteAircraft(Aircraft data){
         SQLiteDatabase db = this.getWritableDatabase();
         return AircraftTable.deleteItem(db, data);
+    }
+
+    public boolean restoreAircraftData(List<Aircraft> aircraftList){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return AircraftTable.restoreDB(db, aircraftList);
     }
 
     public List<Aircraft> getAirCrafts(){
@@ -102,6 +112,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return ArrivalTable.deleteItem(db, data);
     }
 
+    public boolean restoreArrivalData(List<Arrival> arrivalList) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return ArrivalTable.restoreDB(db, arrivalList);
+    }
+
     public List<Arrival> getArrivals(){
         SQLiteDatabase db = this.getReadableDatabase();
         return ArrivalTable.getItems(db);
@@ -116,6 +131,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public boolean deleteDeparture(Departure data){
         SQLiteDatabase db = this.getWritableDatabase();
         return DepartureTable.deleteItem(db, data);
+    }
+
+    public boolean restoreDepartureData(List<Departure> departureList){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return DepartureTable.restoreDB(db, departureList);
     }
 
     public List<Departure> getDepartures(){
@@ -134,6 +154,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return FlightPlanTable.deleteItem(db, data);
     }
 
+    public boolean restoreFlightPlanData(List<FlightPlan> flightPlanList){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return FlightPlanTable.restoreDB(db, flightPlanList);
+    }
+
     public List<FlightPlan> getFlightPlans(){
         SQLiteDatabase db = this.getReadableDatabase();
         return FlightPlanTable.getItems(db);
@@ -148,6 +173,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public boolean deleteLocation(Location data){
         SQLiteDatabase db = this.getWritableDatabase();
         return LocationTable.deleteItem(db, data);
+    }
+
+    public boolean restoreLocationData(List<Location> locationList){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return LocationTable.restoreDB(db, locationList);
     }
 
     public List<Location> getLocations(){
@@ -166,9 +196,18 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return RunwayTable.deleteItem(db, data);
     }
 
+    public boolean restoreRunwayData(List<Runway> runwayList){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return RunwayTable.restoreDB(db, runwayList);
+    }
+
     public List<Runway> getRwys(long loc_ID){
         SQLiteDatabase db = this.getReadableDatabase();
         return RunwayTable.getItems(db, loc_ID);
+    }
+    public List<Runway> getRwys() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return RunwayTable.getItems(db);
     }
 
 }

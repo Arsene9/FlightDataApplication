@@ -36,6 +36,21 @@ public class DepartureTable {
         onCreate(db);
     }
 
+    /**Drops then recreates the table and repopulates the newly created table with the
+     * data provides to it
+     * @param db
+     * @param departureList
+     * @return true
+     */
+    protected static boolean restoreDB(SQLiteDatabase db, List<Departure> departureList){
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+        for (Departure aD : departureList) {
+            insertItem(db, aD);
+        }
+        return true;
+    }
+
     //Gets the size of the table, equivalent to the total number of records in the table
     public static long getTableCount(SQLiteDatabase db){
         return DatabaseUtils.queryNumEntries(db, TABLE_NAME);
@@ -80,7 +95,7 @@ public class DepartureTable {
      */
     public static boolean deleteItem(SQLiteDatabase db, Departure dD){
         String whereStatement = DEPARTURE_ID + " = ?"; /*LOCATION_ID + " = ? AND" + GATE_PARKING + " = ? AND " +
-                DEPARTURE_TIME + " = ? ";*/
+                ARRIVAL_TIME + " = ? ";*/
 
         String[] args = {String.valueOf(dD.getDepartureID())}; /*{String.valueOf(dD.getLocationID()), dD.getGateParkingName(),
                 dD.getDepartureTime()};*/

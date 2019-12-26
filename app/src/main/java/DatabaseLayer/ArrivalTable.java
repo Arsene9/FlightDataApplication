@@ -1,5 +1,6 @@
 package DatabaseLayer;
 
+
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -10,30 +11,46 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
+import BusinessObjectLayer.Aircraft;
 import BusinessObjectLayer.Arrival;
 
 public class ArrivalTable {
     public static final String TABLE_NAME = "Arrival";
     public static final String ARRIVAL_ID = "Arrival_ID"; // INT IDENTITY PRIMARY KEY,
-    public static final String LOCATION_ID = "Location_ID"; // INT, //CONSTRAINT FK_Arr_Loc FOREIGN KEY (Location_ID) //REFERENCES Location (Location_ID)
-    public static final String GATE_PARKING_EX = "Gate_Parking_Name_Expected"; // VARCHAR(5),
+    public static final String LOCATION_ID = "Location_ID"; // INT, //CONSTRAINT FK_Dep_Loc FOREIGN KEY (Location_ID)//REFERENCES Location (Location_ID)
+    public static final String GATE_PARKING = "GATE_Parking_Name"; // VARCHAR(5) NOT NULL,
     public static final String ARRIVAL_TIME = "Arrival_Time"; // DATETIME
 
     public static void onCreate(SQLiteDatabase db){
-        String CREATE_ARRIVALTABLE = "CREATE TABLE " + TABLE_NAME +
+        String CREATE_ARRIVAL_TABLE = "CREATE TABLE " + TABLE_NAME +
                 "("+ ARRIVAL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"+
                 LOCATION_ID + " REAL, "+
-                GATE_PARKING_EX + " STRING, " +
+                GATE_PARKING + " STRING, " +
                 ARRIVAL_TIME + " DATETIME, " +
                 "FOREIGN KEY( " + LOCATION_ID + " ) REFERENCES " + LocationTable.TABLE_NAME +
                 " ( " + LocationTable.LOCATION_ID + " ) ON DELETE CASCADE" +
                 ")";
-        db.execSQL(CREATE_ARRIVALTABLE);
+        db.execSQL(CREATE_ARRIVAL_TABLE);
     }
 
     public static void onUpgrade(SQLiteDatabase db, int oldversion, int newVersion){
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
         onCreate(db);
+    }
+
+    /**Drops then recreates the table and repopulates the newly created table with the
+     * data provides to it
+     * @param db
+     * @param arrivalList
+     * @return true
+     */
+    protected static boolean restoreDB(SQLiteDatabase db, List<Arrival> arrivalList){
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+        for (Arrival data : arrivalList) {
+            insertItem(db, data);
+        }
+        return true;
     }
 
     //Gets the size of the table, equivalent to the total number of records in the table
@@ -43,30 +60,29 @@ public class ArrivalTable {
 
     /**
      * Method that allows a new data (New table row) to be added to the table
-     * @Parameters: Database (db), ArrivalData (aD)
+     * @Parameters: Database (db), DepartureData (dD)
      * @return: True: For successful insertion
      *          False: For failed insertion
      */
-    public static boolean insertItem(SQLiteDatabase db, Arrival arrD){
+    public static boolean insertItem(SQLiteDatabase db, Arrival dD){
         try {
-            Arrival fp = new Arrival();
-            fp = getArrival(db, arrD);
+            Arrival fp = getArrival(db, dD);
             if(fp == null) {
                 ContentValues contentValues = new ContentValues();
-                contentValues.put(LOCATION_ID, arrD.getLocationID());
-                contentValues.put(GATE_PARKING_EX, arrD.getGateParkingNameExpected());
-                contentValues.put(ARRIVAL_TIME, arrD.getArrivalTime());
+                contentValues.put(LOCATION_ID, dD.getLocationID());
+                contentValues.put(GATE_PARKING, dD.getGateParking());
+                contentValues.put(ARRIVAL_TIME, dD.getArrivalTime());
 
-                if(db.insertOrThrow(TABLE_NAME, null, contentValues) >0)
-                    arrD.setArrivalID(getArrival(db, arrD).getArrivalID());
+                db.insertOrThrow(TABLE_NAME, null, contentValues);
+                dD.setArrivalID(getArrival(db, dD).getArrivalID());
             }
             else
-                arrD.setArrivalID(fp.getArrivalID());
+                dD.setArrivalID(fp.getArrivalID());
             return true;
         }
         catch (SQLiteConstraintException e)
         {
-            Log.e("Insert Arrival Data",e.toString());
+            Log.e("Insert Departure Data",e.toString());
             return false;
         }
     }
@@ -74,16 +90,16 @@ public class ArrivalTable {
     /**
      * Method that allows for an existing data to be deleted form the table
      * The method doesn't take into account dependencies between records
-     *@Parameters: Database (db), ArrivalData (aD)
+     *@Parameters: Database (db), DepartureData (dD)
      *@return: True: For successful delete
      *         False: For failed delete
      */
-    public static boolean deleteItem(SQLiteDatabase db, Arrival aD){
+    public static boolean deleteItem(SQLiteDatabase db, Arrival dD){
         String whereStatement = ARRIVAL_ID + " = ?"; /*LOCATION_ID + " = ? AND" + GATE_PARKING + " = ? AND " +
-                Arrival_TIME + " = ? ";*/
+                ARRIVAL_TIME + " = ? ";*/
 
-        String[] args = {String.valueOf(aD.getArrivalID())}; /*{String.valueOf(aD.getLocationID()), aD.getGateParkingNameExpected(),
-                aD.getArrivalTime()};*/
+        String[] args = {String.valueOf(dD.getArrivalID())}; /*{String.valueOf(dD.getLocationID()), dD.getGateParkingName(),
+                dD.getDepartureTime()};*/
         try {
             boolean deleted = db.delete(TABLE_NAME, whereStatement, args) > 0;
             if(deleted && getItems(db).isEmpty()) {
@@ -137,7 +153,7 @@ public class ArrivalTable {
             while(!items.isAfterLast()) {
                 item.setArrivalID(items.getLong(items.getColumnIndex(ARRIVAL_ID)));
                 item.setLocationID(items.getLong(items.getColumnIndex(LOCATION_ID)));
-                item.setGateParkingNameExpected(items.getString(items.getColumnIndex(GATE_PARKING_EX)));
+                item.setGateParking(items.getString(items.getColumnIndex(GATE_PARKING)));
                 item.setArrivalTime(items.getString(items.getColumnIndex(ARRIVAL_TIME)));
 
                 //put record in unit and compare to target unit before adding
@@ -163,8 +179,8 @@ public class ArrivalTable {
                 Arrival item = new Arrival();
                 item.setArrivalID(items.getLong(items.getColumnIndex(ARRIVAL_ID)));
                 item.setLocationID(items.getLong(items.getColumnIndex(LOCATION_ID)));
-                item.setGateParkingNameExpected(GATE_PARKING_EX);
-                item.setArrivalTime(ARRIVAL_TIME);
+                item.setGateParking(items.getString(items.getColumnIndex(GATE_PARKING)));
+                item.setArrivalTime(items.getString(items.getColumnIndex(ARRIVAL_TIME)));
 
                 dataList.add(item);
                 items.moveToNext();

@@ -44,6 +44,21 @@ public class RunwayTable {
         onCreate(db);
     }
 
+    /**Drops then recreates the table and repopulates the newly created table with the
+     * data provides to it
+     * @param db
+     * @param runwayList
+     * @return true
+     */
+    protected static boolean restoreDB(SQLiteDatabase db, List<Runway> runwayList){
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+        for (Runway data : runwayList) {
+            insertItem(db, data);
+        }
+        return true;
+    }
+
     //Gets the size of the table, equivalent to the total number of records in the table
     public static long getTableCount(SQLiteDatabase db){
         return DatabaseUtils.queryNumEntries(db, TABLE_NAME);
@@ -213,7 +228,7 @@ public class RunwayTable {
         return null;
     }
 
-    private static List<Runway> getItems(SQLiteDatabase db){
+    public static List<Runway> getItems(SQLiteDatabase db){
         Cursor items = getAll(db);
         List<Runway> dataList = new ArrayList<>();
 

@@ -21,6 +21,18 @@ public class Runway {
         this.location_ID = 0;
     }
 
+    public Runway(String data){
+        String[] dList = data.split(";");
+        this.name = dList[1];
+        this.length = Integer.parseInt(dList[2]);
+        this.surface = dList[3];
+        this.hdg = Integer.parseInt(dList[4]);
+        this.ILS_ID = dList[5];
+        this.ILS_Freq = Float.parseFloat(dList[6]);
+        this.location_ID = Long.parseLong(dList[7]);
+    }
+
+
     public Runway(String name, int length, String surface, int hdg, String ILS_ID, float ILS_Freq, int location_ID) {
         this.name = name;
         this.length = length;
@@ -103,5 +115,10 @@ public class Runway {
                 this.ILS_ID.equals(data.ILS_ID) &&
                 this.ILS_Freq == data.ILS_Freq &&
                 this.location_ID == data.location_ID);
+    }
+
+    public String listRunway(){
+        return this.runwayID + ";" + this.name + ";" + this.length + ";" + this.surface + ";" + this.hdg + ";" +
+                this.ILS_ID + ";" + this.ILS_Freq + ";" + this.location_ID;
     }
 }

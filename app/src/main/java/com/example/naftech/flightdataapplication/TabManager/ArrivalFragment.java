@@ -18,23 +18,31 @@ import android.widget.EditText;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
 import com.example.naftech.flightdataapplication.R;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import BusinessObjectLayer.ActualData;
+import BusinessObjectLayer.Aircraft;
+import BusinessObjectLayer.Arrival;
 import BusinessObjectLayer.Departure;
+import BusinessObjectLayer.FlightPlan;
 import DatabaseLayer.DatabaseManager;
 
 import static android.content.Context.MODE_PRIVATE;
@@ -51,12 +59,15 @@ public class ArrivalFragment extends Fragment {
     private Calendar calendar;
     private TimePickerDialog timePicker;
     private static final String FILE_NAME = "example.txt";
+    private String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TestData";
+    private CommonMethod cm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         dbMan = DatabaseManager.getInstance(getContext());
         actualInfo = new ActualData();
+        cm = new CommonMethod();
     }
 
     @Nullable
@@ -81,7 +92,11 @@ public class ArrivalFragment extends Fragment {
         fuelused.setOnClickListener(addFuelUsed);
         arrivalGateParking.setOnClickListener(onGateClick);
 
-        copyDatabase ("FlightPlan");
+//        File dir = new File(path);
+//        dir.mkdir();
+
+
+        //copyDatabase ("FlightPlan");
 
         return view;
     }
@@ -90,7 +105,7 @@ public class ArrivalFragment extends Fragment {
     private EditText.OnClickListener onGateClick = new EditText.OnClickListener() {
         @Override
         public void onClick(View view) {
-            double nmile = 0.869;
+            final double nmile = 0.869;
             double miles = Double.parseDouble(totalDistance.getText().toString());
             miles *= nmile;
             totalDistance.setText(String.valueOf(miles));
@@ -196,38 +211,83 @@ public class ArrivalFragment extends Fragment {
                 DepartureFragment.getFlightPlanInfo().setActualID(actualInfo.getActual_ID());
                 DepartureFragment.getFlightPlanInfo().setfPStatus("Completed");
                 if(dbMan.addFlightPlan(DepartureFragment.getFlightPlanInfo())) {
+                    List<String> data = new ArrayList<>();
+                    data.add("FLIGHT_PLAN_ID;ESTIMATE_TRIP_TIME;DEPARTURE_FUEL;AIRCRAFT;DEPARTURE" +
+                            ";ARRIVAL;ACTUAL_NUMBERS;ESTIMATE_TRIP_DISTANCE;CLIMB_SPEED;CRUISE_SPEED;" +
+                            "CRUISE_ALTITUDE;PAYLOAD_WEIGHT;FUEL_WEIGHT;GROSS_WEIGHT;FLIGHT_PLAN_STATUS");
+                    for(FlightPlan fp : dbMan.getFlightPlans()){
+                        data.add(fp.listFlightPlan());
+                    }
+                    cm.save(getContext(),"flightplan.txt", data);
+
+                    data.clear();
+                    data.add("ACTUAL_ID;DEPARTURE_TIME;ARRIVAL_TIME;FUEL_BALANCE;FUEL_USED;" +
+                            "TOTAL_TRIP_TIME;TOTAL_TRIP_DISTANCE;ARRIVAL_GATE_PARKING ");
+                    for(ActualData ad : dbMan.getActuals()){
+                        data.add(ad.listActualData());
+                    }
+                    cm.save(getContext(),"actualdata.txt", data);
+
+                    data.clear();
+                    data.add("ARRIVAL_ID;LOCATION_ID;GATE_PARKING;ARRIVAL_TIME");
+                    for(Arrival arr : dbMan.getArrivals()){
+                        data.add(arr.listArrival());
+                    }
+                    cm.save(getContext(),"arrival.txt", data);
+
                     saveButton.setVisibility(View.GONE);
-                    messageToaster("Flight plan is now saved and completed");
+                    cm.messageToaster(getContext(),"Flight plan is now saved and completed");
                 }
             }
 
         }
     };
     ////////////////////////////////////  Helper Methods   /////////////////////////////////////////
-    public void save() {
-        String text = "We are testing this thing";
-        FileOutputStream fos = null;
-
-        try {
-            fos = openFileOutput(FILE_NAME, MODE_PRIVATE);
-            fos.write(text.getBytes());
-
-            Toast.makeText(this, "Saved to " + getFilesDir() + "/" + FILE_NAME,
-                    Toast.LENGTH_LONG).show();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    public boolean isExternalStorageWritable() {
+        String state = Environment.getExternalStorageState();
+        if (Environment.DIRECTORY_DCIM.equals(state)) {
+            return true;
         }
+        return false;
     }
+
+    public File getPublicAlbumStorageDir(String fileName) {
+        // Get the directory for the user's public pictures directory.
+        File file = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DCIM), fileName);
+        if (!file.mkdirs()) {
+            cm.messageToaster(getContext(),"Directory not created");
+        }
+        return file;
+    }
+
+/////////////////////////////////////////////////////////////////////
+//    public void save(String fileName, List<String> data) {
+//        //String text = "We are testing this thing";
+//        FileOutputStream fos = null;
+//
+//        try {
+//            fos = getContext().openFileOutput(fileName, MODE_PRIVATE);
+//            for(String text : data) {
+//                fos.write(text.getBytes());
+//                fos.write("\n".getBytes());
+//            }
+//
+//            cm.messageToaster(getContext(),"Saved to " + getContext().getFilesDir() + "/" + fileName);
+//        } catch (FileNotFoundException e) {
+//            e.printStackTrace();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } finally {
+//            if (fos != null) {
+//                try {
+//                    fos.close();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
 //    void copyDatabase (String databaseName){
 //        try {
 //            final String inFileName = "/data/data/com.example.naftech.flightdataapplication/databases/database.db";
@@ -283,8 +343,4 @@ public class ArrivalFragment extends Fragment {
 //            Log.d(TAG, "copyDatabase: backup error");
 //        }
 //    }
-
-    private void messageToaster(String msg){
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-    }
 }

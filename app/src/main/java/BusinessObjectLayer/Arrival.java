@@ -3,18 +3,28 @@ package BusinessObjectLayer;
 public class Arrival {
     private long arrivalID;
     private long locationID; // INT, //CONSTRAINT FK_Arr_Loc FOREIGN KEY (Location_ID) //REFERENCES Location (Location_ID)
-    private String gateParkingNameExpected; // VARCHAR(5),
+    private String gateParking; // VARCHAR(5),
     private String arrivalTime;
 
     public Arrival(){
         this.locationID = 0;
-        this.gateParkingNameExpected = "";
+        this.gateParking = "";
         this.arrivalTime = "";
+    }
+
+    public Arrival(String data){
+        String[] dList = data.split(";");
+        this.locationID = Long.parseLong(dList[1]);
+        this.gateParking = dList[2];
+        if(dList.length == 4)
+            this.arrivalTime = dList[3];
+        else
+            this.arrivalTime = "";
     }
 
     public Arrival(int locationID, String gateParkingName_Expected, String arrivalTime) {
         this.locationID = locationID;
-        this.gateParkingNameExpected = gateParkingName_Expected;
+        this.gateParking = gateParkingName_Expected;
         this.arrivalTime = arrivalTime;
     }
 
@@ -34,12 +44,12 @@ public class Arrival {
         this.locationID = locationID;
     }
 
-    public String getGateParkingNameExpected() {
-        return this.gateParkingNameExpected;
+    public String getGateParking() {
+        return this.gateParking;
     }
 
-    public void setGateParkingNameExpected(String gateParkingName_Expected) {
-        this.gateParkingNameExpected = gateParkingName_Expected;
+    public void setGateParking(String gateParkingName_Expected) {
+        this.gateParking = gateParkingName_Expected;
     }
 
     public String getArrivalTime() {
@@ -52,7 +62,11 @@ public class Arrival {
 
     public Boolean isSameAs(Arrival ad){
         return (this.locationID == ad.locationID &&
-        this.gateParkingNameExpected.equals(ad.gateParkingNameExpected) &&
+        this.gateParking.equals(ad.gateParking) &&
         this.arrivalTime.equals(ad.arrivalTime));
+    }
+
+    public String listArrival(){
+        return this.arrivalID + ";" + this.locationID + ";" + this.gateParking + ";" + this.arrivalTime;
     }
 }

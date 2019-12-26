@@ -13,6 +13,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
 import com.example.naftech.flightdataapplication.R;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class AircraftFragment extends Fragment {
     private Aircraft aircraftData;
     List<Aircraft> planeList;
     List<String> pList;
+    private CommonMethod cm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,6 +48,7 @@ public class AircraftFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.aircraft_fragment, container,false);
         dbMan = DatabaseManager.getInstance(getContext());
+        cm = new CommonMethod();
         aircraftData = new Aircraft();
         planeList = new ArrayList<>();
         pList = new ArrayList<>();
@@ -92,7 +95,7 @@ public class AircraftFragment extends Fragment {
 
             if(dbMan.addAircraft(aircraftData)){
                 saveDataBtn.setVisibility(View.GONE);
-                messageToaster(aircraftData.getAirlineName()+ " " + aircraftData.getAircraftType()
+                cm.messageToaster(getActivity(), aircraftData.getAirlineName()+ " " + aircraftData.getAircraftType()
                         + " " + aircraftData.getTailNum() + " was added successfully");
             }
         }
@@ -141,7 +144,7 @@ public class AircraftFragment extends Fragment {
         //DownUnit.setDropDownWidth(300);
     }
 
-    private void messageToaster(String msg){
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-    }
+//    private void messageToaster(String msg){
+//        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
+//    }
 }

@@ -34,6 +34,24 @@ public class FlightPlan {
         this.fPStatus = "";
     }
 
+    public FlightPlan(String data){
+        String[] dList = data.split(";");
+        this.tripDurationEstimate = dList[1];
+        this.fuelTaken = Float.parseFloat(dList[2]);
+        this.aircraftID = Long.parseLong(dList[3]);
+        this.departureID = Long.parseLong(dList[4]);
+        this.arrivalID = Long.parseLong(dList[5]);
+        this.actualID = Long.parseLong(dList[6]);
+        this.tripDistanceEstimate = Float.parseFloat(dList[7]);
+        this.climbSpeed = Integer.parseInt(dList[8]);
+        this.cruiseSpeed = Integer.parseInt(dList[9]);
+        this.cruiseAltitude = Integer.parseInt(dList[10]);
+        this.payloadWeight = Float.parseFloat(dList[11]);
+        this.fuelWeight = Float.parseFloat(dList[12]);
+        this.grossWeight = Float.parseFloat(dList[13]);
+        this.fPStatus = dList[14];
+    }
+
     public FlightPlan(String tripDurationEstimate, float fuelTaken, int aircraftID, int departureID,
                       int arrivalID, int actualID, float tripDistanceEstimate, int climbSpeed,
                       int cruiseSpeed, int cruiseAltitude, float payloadWeight, float fuelWeight,
@@ -189,5 +207,14 @@ public class FlightPlan {
         this.fuelWeight == fP.fuelWeight &&
         this.grossWeight == fP.grossWeight &&
         this.fPStatus.equals(fP.fPStatus));
+    }
+
+    public String listFlightPlan(){
+        return  this.flightPlanID + ";" + this.tripDurationEstimate + ";" + this.fuelTaken + ";" +
+                this.aircraftID + ";" + this.departureID + ";" + this.arrivalID + ";" +
+                this.actualID + ";" + this.tripDistanceEstimate + ";" +
+                this.climbSpeed + ";" + this.cruiseSpeed + ";" + this.cruiseAltitude + ";" +
+                this.payloadWeight + ";" + this.fuelWeight + ";" + this.grossWeight + ";" +
+                this.fPStatus;
     }
 }

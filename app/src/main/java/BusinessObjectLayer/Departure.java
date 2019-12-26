@@ -12,6 +12,13 @@ public class Departure {
         this.departureTime = "";
     }
 
+    public Departure(String data){
+        String[] dList = data.split(";");
+        this.locationID = Long.parseLong(dList[1]);
+        this.gateParkingName = dList[1];
+        this.departureTime = dList[1];
+    }
+
     public Departure(int locationID, String gateParkingName, String departureTime) {
         this.locationID = locationID;
         this.gateParkingName = gateParkingName;
@@ -54,5 +61,9 @@ public class Departure {
         return(this.locationID == locationID &&
         this.gateParkingName.equals(gateParkingName) &&
         this.departureTime.equals(dep.departureTime));
+    }
+
+    public String listDeparture(){
+        return this.departureID + ";" + this.locationID + ";" + this.gateParkingName + ";" + this.departureTime;
     }
 }

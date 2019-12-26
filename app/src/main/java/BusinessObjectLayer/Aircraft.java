@@ -17,6 +17,16 @@ public class Aircraft {
         this.callSign = "";
         this.flightNum = "";
     }
+    public Aircraft(String data){
+        String[] dList = data.split(";");
+        this.aircraftID = Long.parseLong(dList[0]);
+        this.airlineName = dList[1];
+        this.aircraftType = dList[2];
+        this.manufacturer = dList[3];
+        this.tailNum = dList[4];
+        this.callSign = dList[5];
+        this.flightNum = dList[6];
+    }
 
     public Aircraft(String airlineName, String aircraftType, String manufacturer, String tailNum, String callSign, String flightNum) {
         this.airlineName = airlineName;
@@ -90,5 +100,9 @@ public class Aircraft {
                 this.tailNum.equals(data.tailNum) &&
                 this.callSign.equals(data.callSign) &&
                 this.flightNum.equals(data.flightNum));
+    }
+    public String listAircrafts(){
+        return this.aircraftID + ";" + this.airlineName + ";" + this.aircraftType + ";" + this.manufacturer + ";" +
+                this.tailNum + ";" + this.callSign + ";" + this.flightNum;
     }
 }

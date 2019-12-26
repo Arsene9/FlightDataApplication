@@ -20,6 +20,17 @@ public class ActualData {
         this.totalTripDistance = 0;
         this.gateParkingName = "";
     }
+    public ActualData(String data){
+        String[] dList = data.split(";");
+        this.actual_ID = Long.parseLong(dList[0]);
+        this.departureTime = dList[1];
+        this.arrivalTime = dList[2];
+        this.fuelBalance = Float.parseFloat(dList[3]);
+        this.fuelUsed = Float.parseFloat(dList[4]);
+        this.totalTripDuration = dList[5];
+        this.totalTripDistance = Float.parseFloat(dList[6]);
+        this.gateParkingName = dList[7];
+    }
 
     public ActualData(String departureTime, String arrivalTime, float fuelBalance, float fuelUsed,
                       String totalTripDuration, float totalTripDistance, String gateParkingName) {
@@ -104,5 +115,12 @@ public class ActualData {
         this.totalTripDuration.equals(ad.totalTripDuration) &&
         this.totalTripDistance == ad.totalTripDistance &&
         this.gateParkingName.equals(ad.gateParkingName));
+    }
+
+    public String listActualData(){
+        return this.actual_ID + ";" + this.departureTime + ";" + this.arrivalTime + ";" +
+                this.fuelBalance + ";" + this.fuelUsed + ";" +
+                this.totalTripDuration + ";" + this.totalTripDistance + ";" +
+                this.gateParkingName;
     }
 }

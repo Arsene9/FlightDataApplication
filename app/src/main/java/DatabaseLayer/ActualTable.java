@@ -44,6 +44,21 @@ public class ActualTable {
         onCreate(db);
     }
 
+    /**Drops then recreates the table and repopulates the newly created table with the
+     * data provides to it
+     * @param db
+     * @param actualDataList
+     * @return true
+     */
+    protected static boolean restoreDB(SQLiteDatabase db, List<ActualData> actualDataList){
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+        for (ActualData aD : actualDataList) {
+            insertItem(db, aD);
+        }
+        return true;
+    }
+
     //Gets the size of the table, equivalent to the total number of records in the table
     public static long getTableCount(SQLiteDatabase db){
         return DatabaseUtils.queryNumEntries(db, TABLE_NAME);
@@ -92,7 +107,7 @@ public class ActualTable {
      *         False: For failed delete
      */
     public static boolean deleteItem(SQLiteDatabase db, ActualData aD){
-        String whereStatement = ACTUAL_ID + " = ?"; /*DEPARTURE_TIME + " = ? AND" + ARRIVAL_TIME + " = ? AND " +
+        String whereStatement = ACTUAL_ID + " = ?"; /*ARRIVAL_TIME + " = ? AND" + ARRIVAL_TIME + " = ? AND " +
                 FUEL_BALANCE + " = ? AND " + FUEL_USED + " = ? AND " + TOTAL_TRIP_TIME +
                 " = ? AND " + TOTAL_TRIP_DISTANCE + " = ? AND " + ARRIVAL_GATE_PARKING + " = ?";*/
 

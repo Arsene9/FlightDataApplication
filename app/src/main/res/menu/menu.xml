@@ -16,4 +16,16 @@
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="@android:string/cancel"
         app:showAsAction="always" />
+    <item
+        android:id="@+id/restoreDBAction"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="Restore DB"
+        app:showAsAction="" />
+    <item
+        android:id="@+id/updateServerDBAction"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_close_clear_cancel"
+        android:title="Update Server DB"
+        app:showAsAction="" />
 </menu>

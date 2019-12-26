@@ -26,10 +26,17 @@ import BusinessObjectLayer.Location;
 import BusinessObjectLayer.Runway;
 import DatabaseLayer.DatabaseManager;
 
+import static com.example.naftech.flightdataapplication.MainPage.addAction;
+import static com.example.naftech.flightdataapplication.MainPage.cancelAction;
+import static com.example.naftech.flightdataapplication.MainPage.restoreDB;
+import static com.example.naftech.flightdataapplication.MainPage.saveAction;
+import static com.example.naftech.flightdataapplication.MainPage.updateServerDB;
+
 public class AirportLocationDataDisplay extends AppCompatActivity {
-    private MenuItem saveAction;
-    private MenuItem addAction;
-    private MenuItem cancelAction;
+//    private MenuItem saveAction;
+//    private MenuItem addAction;
+//    private MenuItem cancelAction;
+//    private MenuItem updateServerDB, restoreDB;
     private TextView displayTitle;
     private EditText airportIDET, airportNameET, arpCity, arpState,arpCountry, rwyCount;
     private Toolbar toolbar;
@@ -42,6 +49,7 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
     private Location locData;
     private List<Runway> locRwys;
     private volatile int rwyListPosition;
+    private CommonMethod cm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +57,7 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
         setContentView(R.layout.add_airport_location);
 
         dbMan = DatabaseManager.getInstance(this);
+        cm = new CommonMethod();
         locRwys = new ArrayList<>();
         locData = new Location();
         rwyListPosition = 1;
@@ -63,7 +72,6 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar2);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(null);
-
     }
 
     @Override
@@ -73,7 +81,11 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
         addAction = menu.findItem(R.id.addLocationAction);
         saveAction = menu.findItem(R.id.saveAction);
         cancelAction = menu.findItem(R.id.cancelAction);
+        updateServerDB = menu.findItem(R.id.updateServerDBAction);
+        restoreDB = menu.findItem(R.id.restoreDBAction);
         addAction.setVisible(false);
+        updateServerDB.setVisible(false);
+        restoreDB.setVisible(false);
 
         return true;
     }
@@ -92,7 +104,7 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
                     dialogTitle.setText(rwyListPosition + " of " + rwyCount.getText().toString() + " runways");
                 }
                 else
-                    messageToaster("Sorry location could not be saved");
+                    cm.messageToaster(AirportLocationDataDisplay.this, "Sorry location could not be saved");
             }
         }
         else{//cancel Action
@@ -104,9 +116,9 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
 
     //////////////////////////////   Helper Methods   //////////////////////////////////////////////
 
-    private void messageToaster(String msg){
-        Toast.makeText(AirportLocationDataDisplay.this, msg, Toast.LENGTH_LONG).show();
-    }
+//    private void messageToaster(String msg){
+//        Toast.makeText(AirportLocationDataDisplay.this, msg, Toast.LENGTH_LONG).show();
+//    }
 
     public void showAddRwysDialog(){
         final Dialog dialog = new Dialog(AirportLocationDataDisplay.this);
@@ -138,7 +150,7 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
                     if ((rwyListPosition-1) >= locRwys.size() )
                         locRwys.add(rwy);
                     --rwyListPosition;
-                    messageToaster(String.valueOf(locRwys.size()));
+                    cm.messageToaster(AirportLocationDataDisplay.this, String.valueOf(locRwys.size()));
                     dialog.dismiss();
                     dialog.show();
                     displayRunway(locRwys.get(rwyListPosition - 1));
@@ -149,7 +161,7 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
                         prevBtn.setVisibility(View.GONE);
                 }
                 else
-                    messageToaster("Sorry runway could not be saved");
+                    cm.messageToaster(AirportLocationDataDisplay.this, "Sorry runway could not be saved");
             }
         });
         nextBtn.setOnClickListener(new View.OnClickListener() {
@@ -162,7 +174,7 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
 
                     //messageToaster(String.valueOf(locRwys.size()));
                     if(rwyListPosition > Integer.valueOf(rwyCount.getText().toString())){
-                        messageToaster("Runways and location have been saved");
+                        cm.messageToaster(AirportLocationDataDisplay.this, "Runways and location have been saved to DB");
                         dialog.dismiss();
                         Intent mainpg = new Intent(AirportLocationDataDisplay.this, MainPage.class);
                         startActivity(mainpg);
@@ -183,14 +195,14 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
                             dialogTitle.setText(rwyListPosition +
                                     " of " + rwyCount.getText().toString() +
                                     " runways");
-                            messageToaster("We are rolling here");
+                            cm.messageToaster(AirportLocationDataDisplay.this, "We are rolling here");
                         }
                         if(rwyListPosition > 1)
                             prevBtn.setVisibility(View.VISIBLE);
                     }
                 }
                 else
-                    messageToaster("Sorry runway could not be saved");
+                    cm.messageToaster(AirportLocationDataDisplay.this, "Sorry runway could not be saved");
 
             }
         });

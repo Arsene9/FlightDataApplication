@@ -16,6 +16,15 @@ public class Location {
         this.country = "";
     }
 
+    public Location(String data){
+        String[] dList = data.split(";");
+        this.airportID = dList[1];
+        this.airportName = dList[2];
+        this.city = dList[3];
+        this.stateName = dList[4];
+        this.country = dList[5];
+    }
+
     public Location(String airportID, String airportName, String city, String stateName, String country) {
         this.airportID = airportID;
         this.airportName = airportName;
@@ -78,5 +87,10 @@ public class Location {
                 this.city.equals(data.getCity()) &&
                 this.stateName.equals(data.getStateName()) &&
                 this.country.equals(data.getCountry()));
+    }
+
+    public String listLocation(){
+        return  this.locationID + ";" + this.airportID + ";" + this.airportName + ";" +
+                this.city + ";" + this.stateName + ";" + this.country;
     }
 }

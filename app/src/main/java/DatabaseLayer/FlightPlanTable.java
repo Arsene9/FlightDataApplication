@@ -66,6 +66,21 @@ public class FlightPlanTable {
         onCreate(db);
     }
 
+    /**Drops then recreates the table and repopulates the newly created table with the
+     * data provides to it
+     * @param db
+     * @param flightPlanList
+     * @return true
+     */
+    protected static boolean restoreDB(SQLiteDatabase db, List<FlightPlan> flightPlanList){
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+        onCreate(db);
+        for (FlightPlan data : flightPlanList) {
+            insertItem(db, data);
+        }
+        return true;
+    }
+
     //Gets the size of the table, equivalent to the total number of records in the table
     public static long getTableCount(SQLiteDatabase db){
         return DatabaseUtils.queryNumEntries(db, TABLE_NAME);
