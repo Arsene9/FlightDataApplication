@@ -137,8 +137,8 @@ public class MainPage extends AppCompatActivity {
         cancelAction.setVisible(false);
         addAction.setVisible(false);
 
-        MainThread = new Thread(new ControlThread());
-        MainThread.start();
+//        MainThread = new Thread(new ControlThread());
+//        MainThread.start();
 
         return true;
     }
@@ -150,25 +150,27 @@ public class MainPage extends AppCompatActivity {
             startActivity(addAirport);
         }
         else if(Item == restoreDB){
-
-//            File folder = new File("/data/data/com.example.naftech.flightdataapplication/files");
-//            File[] fileList = folder.listFiles();
-//            for(File trgF : fileList){
-//                //restoreDatabaseFromFile(trgF);
-//                new SocketWritter("Need" + trgF);
-//            }
+            //dirFileGen();
+            String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
+            File folder = new File(externalStorage + File.separator + "FlightTripData");
+            File[] fileList = folder.listFiles();
+            for(File trgF : fileList){
+                restoreDatabaseFromFile(trgF);
+                //new SocketWritter("Need" + trgF);
+            }
             cm.messageToaster(MainPage.this, "Flight Data has been restored");
         }
         else if(Item == updateServerDB){
-//            File folder = new File("/data/data/com.example.naftech.flightdataapplication/files");
+//            String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
+//            File folder = new File(externalStorage + File.separator + "FlightTripData");//"/data/data/com.example.naftech.flightdataapplication/files");
 //            File[] fileList = folder.listFiles();
-            String[] fileNList =  {"actualdata.txt", "aircrafts.txt", "arrival.txt",
-                    "departure.txt", "flightplan.txt", "location.txt", "runway.txt"};
-            for(String trgF : fileNList){
-                //restoreDatabaseFromFile(trgF);
-                new SocketWritter("Sending" + trgF);
-            }
-            cm.messageToaster(MainPage.this, "ServerUpdated");
+////            String[] fileNList =  {"actualdata.txt", "aircrafts.txt", "arrival.txt",
+////                    "departure.txt", "flightplan.txt", "location.txt", "runway.txt"};
+//            for(File trgF : fileList){//fileNList){
+//                restoreDatabaseFromFile(trgF);
+////                new SocketWritter("Sending" + trgF);
+//            }
+            cm.messageToaster(MainPage.this, "ServerUpdat not yet available");
         }
 
         return true;
@@ -177,150 +179,150 @@ public class MainPage extends AppCompatActivity {
     /// Threads definition for wifi configuration, data reception and transmission
 
     ///Control Thread
-    class ControlThread implements Runnable {
-        public void run() {
-            try {
-                socket = new Socket(ARDUINO_IP_ADDRESS, PORT);
-                output = new PrintWriter(socket.getOutputStream());
-                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-                rx=1;
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-//                        Toast.makeText(MainPage.this, "Looks like the Control Thread has started", Toast.LENGTH_LONG);
-                        cm.messageToaster(MainPage.this,"Waiting for Yun's Message");
-                    }
-                });
-
-                new Thread(new SocketReader()).start();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }/*finally{
-					try {
-						mStop.set(true);
-						if(output != null) output.close();
-						if(input != null) input.close();
-						if(socket != null) socket.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-			}*/
-        }
-    }
+//    class ControlThread implements Runnable {
+//        public void run() {
+//            try {
+//                socket = new Socket(ARDUINO_IP_ADDRESS, PORT);
+//                output = new PrintWriter(socket.getOutputStream());
+//                input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//
+//                rx=1;
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+////                        Toast.makeText(MainPage.this, "Looks like the Control Thread has started", Toast.LENGTH_LONG);
+//                        cm.messageToaster(MainPage.this,"Waiting for Yun's Message");
+//                    }
+//                });
+//
+//                new Thread(new SocketReader()).start();
+//
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }/*finally{
+//					try {
+//						mStop.set(true);
+//						if(output != null) output.close();
+//						if(input != null) input.close();
+//						if(socket != null) socket.close();
+//					} catch (IOException e) {
+//						e.printStackTrace();
+//					}
+//			}*/
+//        }
+//    }
 
     ///Reader thread
-    class SocketReader implements Runnable {
-        File targetFile = null;
-        List<String> data = new ArrayList();
-
-        /**
-         * Saves the data form the string list to the target output file
-         * @param outputFile
-         * @param data
-         */
-        private void save(File outputFile, List<String> data) {
-            FileOutputStream fos = null;
-            try {
-                fos = new FileOutputStream(outputFile, false);//context.openFileOutput(message, MODE_PRIVATE); //getContext().openFileOutput(message, MODE_PRIVATE);
-                for(String text : data) {
-                    fos.write(text.getBytes());
-                    fos.write("\n".getBytes());
-                }
-
-                //messageToaster(context, "Saved to " + outputFile.getPath());
-            } catch (FileNotFoundException e) {
-                //e.printStackTrace();
-            } catch (IOException e) {
-                //e.printStackTrace();
-            } finally {
-                if (fos != null) {
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        //e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        @Override
-        public void run() {
-            while (rx == 1) {
-                try {
-                    if(input.ready()) {
-                        final String message = input.readLine();
-                        if(message.startsWith("Data")){
-                            String newData = message.replace("Data", "");
-                            data.add(newData);
-                        }else if(message.equals("Save")){
-                            save(targetFile, data);
-
-                        }else if(message.startsWith("Sending")){
-                            String fileName = message.replace("Sending", "");
-                            targetFile = getFile(fileName);
-                        }else if(!message.isEmpty()){
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    cm.messageToaster(MainPage.this, message);
-                                }
-                            });
-                        }
-
-                    }
-                    else if(socket == null) {
-                        rx = 0;
-                        MainThread.start();
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-    ///Writter Thread
-    class SocketWritter implements Runnable {
-        private String message;
-        File targetFile = null;
-        List<String> data = new ArrayList();
-        SocketWritter(String message) {
-            this.message = message;
-        }
-        @Override
-        public synchronized void run() {
-//            if(message.startsWith("Sending")) {
+//    class SocketReader implements Runnable {
+//        File targetFile = null;
+//        List<String> data = new ArrayList();
+//
+//        /**
+//         * Saves the data form the string list to the target output file
+//         * @param outputFile
+//         * @param data
+//         */
+//        private void save(File outputFile, List<String> data) {
+//            FileOutputStream fos = null;
+//            try {
+//                fos = new FileOutputStream(outputFile, false);//context.openFileOutput(message, MODE_PRIVATE); //getContext().openFileOutput(message, MODE_PRIVATE);
+//                for(String text : data) {
+//                    fos.write(text.getBytes());
+//                    fos.write("\n".getBytes());
+//                }
+//
+//                //messageToaster(context, "Saved to " + outputFile.getPath());
+//            } catch (FileNotFoundException e) {
+//                //e.printStackTrace();
+//            } catch (IOException e) {
+//                //e.printStackTrace();
+//            } finally {
+//                if (fos != null) {
+//                    try {
+//                        fos.close();
+//                    } catch (IOException e) {
+//                        //e.printStackTrace();
+//                    }
+//                }
+//            }
+//        }
+//
+//        @Override
+//        public void run() {
+//            while (rx == 1) {
+//                try {
+//                    if(input.ready()) {
+//                        final String message = input.readLine();
+//                        if(message.startsWith("Data")){
+//                            String newData = message.replace("Data", "");
+//                            data.add(newData);
+//                        }else if(message.equals("Save")){
+//                            save(targetFile, data);
+//
+//                        }else if(message.startsWith("Sending")){
+//                            String fileName = message.replace("Sending", "");
+//                            targetFile = getFile(fileName);
+//                        }else if(!message.isEmpty()){
+//                            runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    cm.messageToaster(MainPage.this, message);
+//                                }
+//                            });
+//                        }
+//
+//                    }
+//                    else if(socket == null) {
+//                        rx = 0;
+//                        MainThread.start();
+//                    }
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//    }
+//
+//    ///Writter Thread
+//    class SocketWritter implements Runnable {
+//        private String message;
+//        File targetFile = null;
+//        List<String> data = new ArrayList();
+//        SocketWritter(String message) {
+//            this.message = message;
+//        }
+//        @Override
+//        public synchronized void run() {
+////            if(message.startsWith("Sending")) {
+////                output.write(message);
+////                output.flush();
+////                data.addAll(getFileDataList(targetFile));
+////                for (String l : data) {
+////                    output.print("Data" + l);
+////                    output.flush();
+////                    //try {Thread.sleep(100); } catch(InterruptedException e) {}
+////                }
+////                output.print("Save");
+////                output.flush();
+////            }else{
 //                output.write(message);
 //                output.flush();
-//                data.addAll(getFileDataList(targetFile));
-//                for (String l : data) {
-//                    output.print("Data" + l);
-//                    output.flush();
-//                    //try {Thread.sleep(100); } catch(InterruptedException e) {}
-//                }
-//                output.print("Save");
-//                output.flush();
-//            }else{
-                output.write(message);
-                output.flush();
-//            }
-//            runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    msgTextView.setText(message);
-//                }
-//            });
-//            if(message.equals("0"))
-//                rx = 0;
-//            else {
-//                rx = 1;
-//            }
-//            new Thread(new SocketReader()).start();
-        }
-    }
+////            }
+////            runOnUiThread(new Runnable() {
+////                @Override
+////                public void run() {
+////                    msgTextView.setText(message);
+////                }
+////            });
+////            if(message.equals("0"))
+////                rx = 0;
+////            else {
+////                rx = 1;
+////            }
+////            new Thread(new SocketReader()).start();
+//        }
+//    }
 
     //////////////////////////////   Helper Methods   //////////////////////////////////////////////
 //    private void messageToaster(String msg){
@@ -460,32 +462,32 @@ public class MainPage extends AppCompatActivity {
      * @return The file that bears the same name as the target file name
      * (trgFileName). Otherwise returns null if no match was found
      */
-    public synchronized File getFile (String trgFileName){
-//        String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
-//        File folder = new File(externalStorage + File.separator +
-//                "FlightTripData");
-//        if(!folder.exists())dirFileGen();
-
-//        File[] fileList = folder.listFiles();
-        File folder = new File("/data/data/com.example.naftech.flightdataapplication/files");
-//        String[] fileNList =  {"actualdata.txt", "aircrafts.txt", "arrival.txt",
-//                "departure.txt", "flightplan.txt", "location.txt", "runway.txt"};
-//        for (String trgF : fileNList) {
-//            File outputFile = new File(externalStorage + File.separator +
-//                    "FlightTripData" + File.separator + trgF);
+//    public synchronized File getFile (String trgFileName){
+////        String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
+////        File folder = new File(externalStorage + File.separator +
+////                "FlightTripData");
+////        if(!folder.exists())dirFileGen();
 //
-//            try {
-//                if(!outputFile.exists())
-//                    outputFile.createNewFile();
-//            } catch (IOException e) {
-//                e.printStackTrace();
+////        File[] fileList = folder.listFiles();
+//        File folder = new File("/data/data/com.example.naftech.flightdataapplication/files");
+////        String[] fileNList =  {"actualdata.txt", "aircrafts.txt", "arrival.txt",
+////                "departure.txt", "flightplan.txt", "location.txt", "runway.txt"};
+////        for (String trgF : fileNList) {
+////            File outputFile = new File(externalStorage + File.separator +
+////                    "FlightTripData" + File.separator + trgF);
+////
+////            try {
+////                if(!outputFile.exists())
+////                    outputFile.createNewFile();
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+////        }
+//        for(File trgF : folder.listFiles()){
+//            if(trgF.getName().equals(trgFileName)){
+//                return trgF;
 //            }
 //        }
-        for(File trgF : folder.listFiles()){
-            if(trgF.getName().equals(trgFileName)){
-                return trgF;
-            }
-        }
-        return null;
-    }
+//        return null;
+//    }
 }
