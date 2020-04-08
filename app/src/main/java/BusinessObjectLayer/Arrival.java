@@ -1,5 +1,11 @@
 package BusinessObjectLayer;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class Arrival {
     private long arrivalID;
     private long locationID; // INT, //CONSTRAINT FK_Arr_Loc FOREIGN KEY (Location_ID) //REFERENCES Location (Location_ID)
@@ -58,6 +64,44 @@ public class Arrival {
 
     public void setArrivalTime(String arrivalTime) {
         this.arrivalTime = arrivalTime;
+    }
+
+    /**
+     * Stores the data of Arrival into an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean backupEntityData(){
+        boolean backedup = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.add(listArrival());
+
+        if(cm.saveToInternalFile(data, "EntityArrivalData"))
+            backedup = true;
+
+        return backedup;
+    }
+
+    /**
+     * Retrieves the data of Arrival from an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean restoreEntityData(){
+        boolean restored = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.addAll(cm.getInternalFileData("EntityArrivalData"));
+        if(!data.isEmpty()) {
+            restored = true;
+            String[] dList = data.get(0).split(";");
+            this.locationID = Long.parseLong(dList[1]);
+            this.gateParking = dList[2];
+            if(dList.length == 4)
+                this.arrivalTime = dList[3];
+            else
+                this.arrivalTime = "";
+        }
+        return restored;
     }
 
     public Boolean isSameAs(Arrival ad){

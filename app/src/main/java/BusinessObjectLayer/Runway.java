@@ -1,5 +1,10 @@
 package BusinessObjectLayer;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Runway {
     private long runwayID;
     private String name; // VARCHAR(6),
@@ -105,6 +110,45 @@ public class Runway {
 
     public void setLocation_ID(long location_ID) {
         this.location_ID = location_ID;
+    }
+
+    /**
+     * Stores the data of Runway into an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean backupEntityData(){
+        boolean backedup = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.add(listRunway());
+
+        if(cm.saveToInternalFile(data, "EntityRunwayData"))
+            backedup = true;
+
+        return backedup;
+    }
+
+    /**
+     * Retrieves the data of Runway from an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean restoreEntityData(){
+        boolean restored = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.addAll(cm.getInternalFileData("EntityRunwayData"));
+        if(!data.isEmpty()) {
+            restored = true;
+            String[] dList = data.get(0).split(";");
+            this.name = dList[1];
+            this.length = Integer.parseInt(dList[2]);
+            this.surface = dList[3];
+            this.hdg = Integer.parseInt(dList[4]);
+            this.ILS_ID = dList[5];
+            this.ILS_Freq = Float.parseFloat(dList[6]);
+            this.location_ID = Long.parseLong(dList[7]);
+        }
+        return restored;
     }
 
     public boolean isSameAs(Runway data){

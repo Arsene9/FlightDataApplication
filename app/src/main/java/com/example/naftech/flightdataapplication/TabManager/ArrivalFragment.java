@@ -2,12 +2,9 @@ package com.example.naftech.flightdataapplication.TabManager;
 
 import android.app.TimePickerDialog;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.graphics.drawable.DrawerArrowDrawable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,20 +13,10 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.naftech.flightdataapplication.CommonMethod;
 import com.example.naftech.flightdataapplication.R;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -39,28 +26,23 @@ import java.util.List;
 import java.util.Locale;
 
 import BusinessObjectLayer.ActualData;
-import BusinessObjectLayer.Aircraft;
 import BusinessObjectLayer.Arrival;
-import BusinessObjectLayer.Departure;
 import BusinessObjectLayer.FlightPlan;
 import DatabaseLayer.DatabaseManager;
-
-import static android.content.Context.MODE_PRIVATE;
-import static android.support.constraint.Constraints.TAG;
 
 public class ArrivalFragment extends Fragment {
 
     public static AutoCompleteTextView arriveRwy, actDepartTime, actArriveTime, actTripTime,
             fuelLeft, fuelused, totalDistance, arrivalGateParking;
-    private Button saveButton;
+    private static Button saveButton, editButton, newButton;
 
     private DatabaseManager dbMan;
-    private ActualData actualInfo;
+    private static ActualData actualInfo;
     private Calendar calendar;
     private TimePickerDialog timePicker;
-    private static final String FILE_NAME = "example.txt";
-    private String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TestData";
-    private CommonMethod cm;
+    //private static final String FILE_NAME = "example.txt";
+    //private String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TestData";
+    private static CommonMethod cm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,6 +50,33 @@ public class ArrivalFragment extends Fragment {
         dbMan = DatabaseManager.getInstance(getContext());
         actualInfo = new ActualData();
         cm = new CommonMethod();
+    }
+
+    private static List<String> arrivalFragData = new ArrayList<>();
+    private static String activityDataFileName = "ArrivalFragmentData.txt";
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        arrivalFragData.clear();
+        arrivalFragData.add(arriveRwy.getText().toString());
+        arrivalFragData.add(actDepartTime.getText().toString());
+        arrivalFragData.add(actArriveTime.getText().toString());
+        arrivalFragData.add(actTripTime.getText().toString());
+        arrivalFragData.add(fuelLeft.getText().toString());
+        arrivalFragData.add(fuelused.getText().toString());
+        arrivalFragData.add(totalDistance.getText().toString());
+        arrivalFragData.add(arrivalGateParking.getText().toString());
+        arrivalFragData.add(String.valueOf(saveButton.getVisibility()));
+        arrivalFragData.add(String.valueOf(editButton.getVisibility()));
+        arrivalFragData.add(String.valueOf(newButton.getVisibility()));
+        cm.saveToInternalFile(arrivalFragData, activityDataFileName);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        restoreFragValues();
     }
 
     @Nullable
@@ -84,8 +93,15 @@ public class ArrivalFragment extends Fragment {
         totalDistance = view.findViewById(R.id.totalTripDistanceACTV);
         arrivalGateParking = view.findViewById(R.id.arrivalGateACTV3);
         saveButton = view.findViewById(R.id.saveDataButton);
+        editButton = view.findViewById(R.id.editArrivalDataButton);
+        newButton = view.findViewById(R.id.newArrivalDataButton);
+
+        editButton.setVisibility(View.GONE);
+        newButton.setVisibility(View.GONE);
 
         saveButton.setOnClickListener(onSaveDataRequest);
+        editButton.setOnClickListener(editArriveDataOnClick);
+        newButton.setOnClickListener(newArriveDataOnClick);
         actArriveTime.setOnClickListener(addArrivalEstimatedTime);
         actDepartTime.setOnClickListener(onDepartTimeEditTextClick);
         actTripTime.setOnClickListener(onTripDurationEditTextClick);
@@ -165,11 +181,20 @@ public class ArrivalFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
+            //cm.messageToaster(getContext(), actDepartTime.getText().toString()+ " " + actTripTime.getText().toString());
             if(!actDepartTime.getText().toString().isEmpty() && !actTripTime.getText().toString().isEmpty()) {
+                if(actDepartTime.getText().toString().contains("/")){
+                    String dTime = actDepartTime.getText().toString().replaceFirst("(0[1-9]|1[012])/(0[1-9]|[123][0-9])/([1-9][0-9][0-9][0-9]) ", "");
+                    actDepartTime.setText(dTime);
+                    //cm.messageToaster(getContext(),dTime);
+                }
+
                 String currentDate = (Calendar.getInstance(Locale.US).get(Calendar.MONTH)+1) + "/" +
                         Calendar.getInstance(Locale.US).get(Calendar.DAY_OF_MONTH) + "/" +
                         Calendar.getInstance(Locale.US).get(Calendar.YEAR);
+
                 currentDate += " " + actDepartTime.getText().toString();
+
                 try {
                     Date cDate = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss").parse(currentDate);
                     Date flightTime = new SimpleDateFormat("HH:mm:ss").parse(actTripTime.getText().toString());
@@ -196,151 +221,196 @@ public class ArrivalFragment extends Fragment {
         }
     };
 
+    /**
+     * Edits data saved in the database
+     */
+    private Button.OnClickListener editArriveDataOnClick = new Button.OnClickListener() {
+
+        @Override
+        public void onClick(View v) {
+            String alertMSG = "You are about to edit an existing flight plan!";
+            String alertTitle = "Edit Flight Plan";
+            String posBtn = "Proceed", negBtn = "Cancel";
+            //Popup message to notify user of intended action
+            //Cancel new data save
+            if (!cm.showAlertDialog(getActivity(), alertTitle, alertMSG, posBtn, negBtn)) {
+                cm.messageToaster(getActivity(), "Your changes were not saved");
+            }
+            //Perform new data save
+            else {
+                //Perform edit data on database
+                if (!actDepartTime.getText().equals(actualInfo.getDepartureTime()))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actDepartTime.getText().toString(), "Departure_Time");
+                if (!actArriveTime.getText().equals(actualInfo.getArrivalTime()))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actArriveTime.getText().toString(), "Arrival_Time");
+                if (!actTripTime.getText().equals(actualInfo.getTotalTripDuration()))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actTripTime.getText().toString(), "Total_Trip_Duration");
+                if (!fuelLeft.getText().equals(String.valueOf(actualInfo.getFuelBalance())))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), fuelLeft.getText().toString(), "Fuel_Balance");
+                if (!fuelused.getText().equals(String.valueOf(actualInfo.getFuelUsed())))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), fuelused.getText().toString(), "Fuel_Used");
+                if (!totalDistance.getText().equals(String.valueOf(actualInfo.getTotalTripDistance())))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), totalDistance.getText().toString(), "Total_Trip_Distance");
+                if (!arrivalGateParking.getText().equals(actualInfo.getGateParkingName()))
+                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), totalDistance.getText().toString(), "Gate_Parking_Name");
+            }
+        }
+    };
+
+    /**
+     * Saves data as new departure data in the database
+     */
+    private Button.OnClickListener newArriveDataOnClick = new Button.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String alertMSG = "You are about to save this dataset as part of a new flight plan!";
+            String alertTitle = "New Flight Plan";
+            String posBtn = "Proceed", negBtn = "Cancel";
+            //Popup message to notify user of intended action
+            //Cancel new data save
+            if(!cm.showAlertDialog(getActivity(), alertTitle, alertMSG, posBtn, negBtn)){
+                cm.messageToaster(getActivity(), "Saving changes was Canceled");
+            }
+            //Perform new data save
+            else {
+                saveToCompleteFlightPlan();
+            }
+        }
+    };
 
     private Button.OnClickListener onSaveDataRequest = new Button.OnClickListener(){
 
         @Override
         public void onClick(View view) {
-            actualInfo.setTotalTripDuration(actTripTime.getText().toString());
-            actualInfo.setFuelBalance(Float.parseFloat(fuelLeft.getText().toString()));
-            actualInfo.setFuelUsed(Float.parseFloat(fuelused.getText().toString()));
-            actualInfo.setTotalTripDistance(Float.parseFloat(totalDistance.getText().toString()));
-            actualInfo.setGateParkingName(arrivalGateParking.getText().toString());
-
-            if(dbMan.addActualData(actualInfo)) {
-                DepartureFragment.getFlightPlanInfo().setActualID(actualInfo.getActual_ID());
-                DepartureFragment.getFlightPlanInfo().setfPStatus("Completed");
-                if(dbMan.addFlightPlan(DepartureFragment.getFlightPlanInfo())) {
-                    List<String> data = new ArrayList<>();
-                    data.add("FLIGHT_PLAN_ID;ESTIMATE_TRIP_TIME;DEPARTURE_FUEL;AIRCRAFT;DEPARTURE" +
-                            ";ARRIVAL;ACTUAL_NUMBERS;ESTIMATE_TRIP_DISTANCE;CLIMB_SPEED;CRUISE_SPEED;" +
-                            "CRUISE_ALTITUDE;PAYLOAD_WEIGHT;FUEL_WEIGHT;GROSS_WEIGHT;FLIGHT_PLAN_STATUS");
-                    for(FlightPlan fp : dbMan.getFlightPlans()){
-                        data.add(fp.listFlightPlan());
-                    }
-                    cm.save(getContext(),"flightplan.txt", data);
-
-                    data.clear();
-                    data.add("ACTUAL_ID;DEPARTURE_TIME;ARRIVAL_TIME;FUEL_BALANCE;FUEL_USED;" +
-                            "TOTAL_TRIP_TIME;TOTAL_TRIP_DISTANCE;ARRIVAL_GATE_PARKING ");
-                    for(ActualData ad : dbMan.getActuals()){
-                        data.add(ad.listActualData());
-                    }
-                    cm.save(getContext(),"actualdata.txt", data);
-
-                    data.clear();
-                    data.add("ARRIVAL_ID;LOCATION_ID;GATE_PARKING;ARRIVAL_TIME");
-                    for(Arrival arr : dbMan.getArrivals()){
-                        data.add(arr.listArrival());
-                    }
-                    cm.save(getContext(),"arrival.txt", data);
-
-                    saveButton.setVisibility(View.GONE);
-                    cm.messageToaster(getContext(),"Flight plan is now saved and completed");
-                }
-            }
-
+            saveToCompleteFlightPlan();
         }
     };
     ////////////////////////////////////  Helper Methods   /////////////////////////////////////////
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.DIRECTORY_DCIM.equals(state)) {
-            return true;
-        }
-        return false;
+
+    /**
+     * Puts the data from the textboxes into the data object for Actual Flight Data
+     */
+    private void updataeActualFDObject(){
+        actualInfo.setArrivalTime(actArriveTime.getText().toString());
+        actualInfo.setTotalTripDuration(actTripTime.getText().toString());
+        actualInfo.setFuelBalance(Float.parseFloat(fuelLeft.getText().toString()));
+        actualInfo.setFuelUsed(Float.parseFloat(fuelused.getText().toString()));
+        actualInfo.setTotalTripDistance(Float.parseFloat(totalDistance.getText().toString()));
+        actualInfo.setGateParkingName(arrivalGateParking.getText().toString());
+
     }
 
-    public File getPublicAlbumStorageDir(String fileName) {
-        // Get the directory for the user's public pictures directory.
-        File file = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DCIM), fileName);
-        if (!file.mkdirs()) {
-            cm.messageToaster(getContext(),"Directory not created");
+    /**
+     * Saves the data into the database and external files as required
+     */
+    private void saveFinalDataSet(){
+        List<String> data = new ArrayList<>();
+        data.add("FLIGHT_PLAN_ID;ESTIMATE_TRIP_TIME;DEPARTURE_FUEL;AIRCRAFT;DEPARTURE" +
+                ";ARRIVAL;ACTUAL_NUMBERS;ESTIMATE_TRIP_DISTANCE;CLIMB_SPEED;CRUISE_SPEED;" +
+                "CRUISE_ALTITUDE;PAYLOAD_WEIGHT;FUEL_WEIGHT;GROSS_WEIGHT;FLIGHT_PLAN_STATUS");
+        for(FlightPlan fp : dbMan.getFlightPlans()){
+            data.add(fp.listFlightPlan());
         }
-        return file;
+        cm.saveToExternal("flightplan.txt", data);
+
+        data.clear();
+        data.add("ACTUAL_ID;DEPARTURE_TIME;ARRIVAL_TIME;FUEL_BALANCE;FUEL_USED;" +
+                "TOTAL_TRIP_TIME;TOTAL_TRIP_DISTANCE;ARRIVAL_GATE_PARKING ");
+        for(ActualData ad : dbMan.getActuals()){
+            data.add(ad.listActualData());
+        }
+        cm.saveToExternal("actualdata.txt", data);
+
+        data.clear();
+        data.add("ARRIVAL_ID;LOCATION_ID;GATE_PARKING;ARRIVAL_TIME");
+        for(Arrival arr : dbMan.getArrivals()){
+            data.add(arr.listArrival());
+        }
+        cm.saveToExternal("arrival.txt", data);
+
+        saveButton.setVisibility(View.GONE);
+        editButton.setVisibility(View.VISIBLE);
+        newButton.setVisibility(View.VISIBLE);
+        cm.messageToaster(getContext(),"Flight plan is now saved and completed");
     }
 
-/////////////////////////////////////////////////////////////////////
-//    public void save(String fileName, List<String> data) {
-//        //String text = "We are testing this thing";
-//        FileOutputStream fos = null;
-//
-//        try {
-//            fos = getContext().openFileOutput(fileName, MODE_PRIVATE);
-//            for(String text : data) {
-//                fos.write(text.getBytes());
-//                fos.write("\n".getBytes());
-//            }
-//
-//            cm.messageToaster(getContext(),"Saved to " + getContext().getFilesDir() + "/" + fileName);
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } finally {
-//            if (fos != null) {
-//                try {
-//                    fos.close();
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        }
-//    }
-//    void copyDatabase (String databaseName){
-//        try {
-//            final String inFileName = "/data/data/com.example.naftech.flightdataapplication/databases/database.db";
-//            final String outFileName = Environment.getExternalStorageDirectory() + databaseName + ".db";
-//            File dbFile = new File(inFileName);
-//            FileInputStream fis = new FileInputStream(dbFile);
-//
-//            Log.d(TAG, "copyDatabase: outFile = " + outFileName);
-//
-//            // Open the empty db as the output stream
-//            OutputStream output = new FileOutputStream(outFileName);
-//
-//            // Transfer bytes from the inputfile to the outputfile
-//            byte[] buffer = new byte[1024];
-//            int length;
-//            while ((length = fis.read(buffer)) > 0) {
-//                output.write(buffer, 0, length);
-//            }
-//
-//            // Close the streams
-//            output.flush();
-//            output.close();
-//            fis.close();
-//        }catch (Exception e){
-//            Log.d(TAG, "copyDatabase: backup error");
-//        }
-//    }
-//
-//    void restoreDatabase (String databaseName){
-//        try {
-//            final String inFileName = Environment.getExternalStorageDirectory() + databaseName + ".db";
-//            final String outFileName = "/data/data/com.example.naftech.flightdataapplication/databases/database.db";
-//            File dbFile = new File(inFileName);
-//            FileInputStream fis = new FileInputStream(dbFile);
-//
-//            Log.d(TAG, "copyDatabase: outFile = " + outFileName);
-//
-//            // Open the empty db as the output stream
-//            OutputStream output = new FileOutputStream(outFileName);
-//
-//            // Transfer bytes from the inputfile to the outputfile
-//            byte[] buffer = new byte[1024];
-//            int length;
-//            while ((length = fis.read(buffer)) > 0) {
-//                output.write(buffer, 0, length);
-//            }
-//
-//            // Close the streams
-//            output.flush();
-//            output.close();
-//            fis.close();
-//        }catch (Exception e){
-//            Log.d(TAG, "copyDatabase: backup error");
-//        }
-//    }
+    /**
+     * Saves all arrival and actual data
+     */
+    private void saveToCompleteFlightPlan(){
+        updataeActualFDObject();
+        if(dbMan.addActualData(actualInfo)) {
+            DepartureFragment.getFlightPlanInfo().setActualID(actualInfo.getActual_ID());
+            DepartureFragment.getFlightPlanInfo().setfPStatus("Completed");
+            if(dbMan.addFlightPlan(DepartureFragment.getFlightPlanInfo())) {
+                saveFinalDataSet();
+            }
+        }
+    }
+
+    /**
+     * Replaces all the values in the textboxes of the fragment with an empty string
+     */
+    public static void clearFragValuesDisplayed(){
+        arriveRwy.setText("");
+        actDepartTime.setText("");
+        actArriveTime.setText("");
+        actTripTime.setText("");
+        fuelLeft.setText("");
+        fuelused.setText("");
+        totalDistance.setText("");
+        arrivalGateParking.setText("");
+
+        if(saveButton.getVisibility() == View.INVISIBLE || saveButton.getVisibility() == View.GONE ) {
+            saveButton.setVisibility(View.VISIBLE);
+            editButton.setVisibility(View.GONE);
+            newButton.setVisibility(View.GONE);
+        }
+    }
+
+    /**
+     * Replaces all the fragment's visible textbox values with those stored in the storage file
+     */
+    public static void restoreFragValues(){
+        if(cm.getInternalFileData(activityDataFileName) != null) {
+            arrivalFragData.addAll(cm.getInternalFileData(activityDataFileName));
+            arriveRwy.setText(arrivalFragData.get(0));
+            actDepartTime.setText(arrivalFragData.get(1));
+            actArriveTime.setText(arrivalFragData.get(2));
+            actTripTime.setText(arrivalFragData.get(3));
+            fuelLeft.setText(arrivalFragData.get(4));
+            fuelused.setText(arrivalFragData.get(5));
+            totalDistance.setText(arrivalFragData.get(6));
+            arrivalGateParking.setText(arrivalFragData.get(7));
+            saveButton.setVisibility(Integer.parseInt(arrivalFragData.get(8)));
+            if(arrivalFragData.size() > 9) {
+                editButton.setVisibility(Integer.parseInt(arrivalFragData.get(9)));
+                newButton.setVisibility(Integer.parseInt(arrivalFragData.get(10)));
+            }
+
+            boolean oneEmpty = false;
+
+            for(String datum : arrivalFragData){
+                if(!datum.isEmpty())
+                    oneEmpty = false;
+                else {
+                    oneEmpty = true;
+                    break;
+                }
+            }
+
+            if(!oneEmpty){
+                actualInfo.setDepartureTime(arrivalFragData.get(1));
+                actualInfo.setArrivalTime(arrivalFragData.get(2));
+                actualInfo.setTotalTripDuration(arrivalFragData.get(3));
+                actualInfo.setFuelBalance(Float.parseFloat(arrivalFragData.get(4)));
+                actualInfo.setFuelUsed(Float.parseFloat(arrivalFragData.get(5)));
+                actualInfo.setTotalTripDistance(Float.parseFloat(arrivalFragData.get(6)));
+                actualInfo.setGateParkingName(arrivalFragData.get(7));
+            }
+
+
+            arrivalFragData.clear();
+        }
+    }
 }

@@ -11,30 +11,31 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.example.naftech.flightdataapplication.CommonMethod;
 import com.example.naftech.flightdataapplication.R;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
 
 import BusinessObjectLayer.Aircraft;
-import BusinessObjectLayer.Departure;
 import DatabaseLayer.DatabaseManager;
 
 public class AircraftFragment extends Fragment {
 
-    private Button saveDataBtn;
-    private AutoCompleteTextView airlineNACTV, aircraftTypeACTV, manufACTV, tailNumACTV, callSignACTV,
-                                    flightNumACTV;
+    private static Button saveDataBtn;
+    private static AutoCompleteTextView airlineNACTV;
+    private static AutoCompleteTextView aircraftTypeACTV;
+    private static AutoCompleteTextView manufACTV;
+    private static AutoCompleteTextView tailNumACTV;
+    private static AutoCompleteTextView callSignACTV;
+    public static AutoCompleteTextView flightNumACTV;
 
     private DatabaseManager dbMan;
-    private Aircraft aircraftData;
-    List<Aircraft> planeList;
-    List<String> pList;
-    private CommonMethod cm;
+    private static Aircraft aircraftData;
+    static List<Aircraft> planeList;
+    static List<String> pList;
+    private static CommonMethod cm;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +79,30 @@ public class AircraftFragment extends Fragment {
         dropdownList();
 
         return view;
+    }
+
+    private static List<String> aircratFragData = new ArrayList<>();
+    private static String activityDataFileName = "AircraftActivityDataFile.txt";
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        aircratFragData.clear();
+        aircratFragData.add(airlineNACTV.getText().toString());
+        aircratFragData.add(aircraftTypeACTV.getText().toString());
+        aircratFragData.add(manufACTV.getText().toString());
+        aircratFragData.add(tailNumACTV.getText().toString());
+        aircratFragData.add(callSignACTV.getText().toString());
+        aircratFragData.add(flightNumACTV.getText().toString());
+        aircratFragData.add(String.valueOf(saveDataBtn.getVisibility()));
+
+        cm.saveToInternalFile(aircratFragData, activityDataFileName);
+    }
+
+    @Override
+    public void onResume() {
+        restoreFragValues();
+        super.onResume();
     }
 
     private Button.OnClickListener saveDataOnClick = new Button.OnClickListener() {
@@ -144,7 +169,55 @@ public class AircraftFragment extends Fragment {
         //DownUnit.setDropDownWidth(300);
     }
 
-//    private void messageToaster(String msg){
-//        Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-//    }
+    ///////////////////////////////   Helper Methods   /////////////////////////////////
+
+    /**
+     * Replaces all the values in the textboxes of the fragment with an empty string
+     */
+    public static void clearFragValuesDisplayed(){
+        airlineNACTV.setText("");
+        aircraftTypeACTV.setText("");
+        manufACTV.setText("");
+        tailNumACTV.setText("");
+        callSignACTV.setText("");
+        flightNumACTV.setText("");
+
+        if(saveDataBtn.getVisibility() == View.INVISIBLE || saveDataBtn.getVisibility() == View.GONE){
+            saveDataBtn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Replaces all the fragment's visible textbox values with those stored in the storage file
+     */
+    public static void restoreFragValues(){
+        if(cm.getInternalFileData(activityDataFileName) != null) {
+            aircratFragData.addAll(cm.getInternalFileData(activityDataFileName));
+            airlineNACTV.setText(aircratFragData.get(0));
+            aircraftTypeACTV.setText(aircratFragData.get(1));
+            manufACTV.setText(aircratFragData.get(2));
+            tailNumACTV.setText(aircratFragData.get(3));
+            callSignACTV.setText(aircratFragData.get(4));
+            flightNumACTV.setText(aircratFragData.get(5));
+            if(aircratFragData.size() > 6)
+                saveDataBtn.setVisibility(Integer.parseInt(aircratFragData.get(6)));
+
+            if(!airlineNACTV.getText().toString().isEmpty()){
+//                aircraftData.setAirlineName(airlineNACTV.getText().toString());
+//                aircraftData.setAircraftType(aircraftTypeACTV.getText().toString());
+//                aircraftData.setManufacturer(manufACTV.getText().toString());
+//                aircraftData.setTailNum(tailNumACTV.getText().toString());
+//                aircraftData.setCallSign(callSignACTV.getText().toString());
+//                aircraftData.setFlightNum(flightNumACTV.getText().toString());
+                for(String plane : pList) {
+                    if(!airlineNACTV.getText().toString().isEmpty() && plane.startsWith(airlineNACTV.getText().toString())) {
+                        aircraftData = planeList.get(pList.indexOf(plane));
+                        DepartureFragment.getFlightPlanInfo().setAircraftID(aircraftData.getAircraftID());
+                    }
+                }
+            }
+
+            aircratFragData.clear();
+        }
+    }
 }

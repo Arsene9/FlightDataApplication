@@ -1,5 +1,10 @@
 package BusinessObjectLayer;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Departure {
     private long departureID;
     private long locationID; // INT, //CONSTRAINT FK_Dep_Loc FOREIGN KEY (Location_ID)//REFERENCES Location (Location_ID)
@@ -15,8 +20,11 @@ public class Departure {
     public Departure(String data){
         String[] dList = data.split(";");
         this.locationID = Long.parseLong(dList[1]);
-        this.gateParkingName = dList[1];
-        this.departureTime = dList[1];
+        this.gateParkingName = dList[2];
+        if(dList.length == 4)
+            this.departureTime = dList[3];
+        else
+            this.departureTime = "";
     }
 
     public Departure(int locationID, String gateParkingName, String departureTime) {
@@ -55,6 +63,44 @@ public class Departure {
 
     public void setDepartureTime(String departureTime) {
         this.departureTime = departureTime;
+    }
+
+    /**
+     * Stores the data of Departure into an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean backupEntityData(){
+        boolean backedup = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.add(listDeparture());
+
+        if(cm.saveToInternalFile(data, "EntityDepartureData"))
+            backedup = true;
+
+        return backedup;
+    }
+
+    /**
+     * Retrieves the data of Departure from an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean restoreEntityData(){
+        boolean restored = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.addAll(cm.getInternalFileData("EntityDepartureData"));
+        if(!data.isEmpty()) {
+            restored = true;
+            String[] dList = data.get(0).split(";");
+            this.locationID = Long.parseLong(dList[1]);
+            this.gateParkingName = dList[2];
+            if(dList.length == 4)
+                this.departureTime = dList[3];
+            else
+                this.departureTime = "";
+        }
+        return restored;
     }
 
     public boolean isSameAs(Departure dep){

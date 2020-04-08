@@ -31,6 +31,7 @@ import static com.example.naftech.flightdataapplication.MainPage.cancelAction;
 import static com.example.naftech.flightdataapplication.MainPage.restoreDB;
 import static com.example.naftech.flightdataapplication.MainPage.saveAction;
 import static com.example.naftech.flightdataapplication.MainPage.updateServerDB;
+import static com.example.naftech.flightdataapplication.MainPage.resetFP;
 
 public class AirportLocationDataDisplay extends AppCompatActivity {
 //    private MenuItem saveAction;
@@ -83,9 +84,11 @@ public class AirportLocationDataDisplay extends AppCompatActivity {
         cancelAction = menu.findItem(R.id.cancelAction);
         updateServerDB = menu.findItem(R.id.updateServerDBAction);
         restoreDB = menu.findItem(R.id.restoreDBAction);
+        resetFP = menu.findItem(R.id.resetFlightPlan);
         addAction.setVisible(false);
         updateServerDB.setVisible(false);
         restoreDB.setVisible(false);
+        resetFP.setVisible(false);
 
         return true;
     }

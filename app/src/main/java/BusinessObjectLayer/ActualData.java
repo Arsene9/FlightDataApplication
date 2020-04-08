@@ -1,5 +1,13 @@
 package BusinessObjectLayer;
 
+import android.support.annotation.NonNull;
+
+import com.example.naftech.flightdataapplication.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class ActualData {
     private long actual_ID;
     private String departureTime; // TIME(2),
@@ -107,7 +115,47 @@ public class ActualData {
         this.gateParkingName = gateParkingName;
     }
 
-    public boolean isSameAs(ActualData ad){
+    /**
+     * Stores the data of ActualData into an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean backupEntityData(){
+        boolean backedup = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.add(listActualData());
+
+        if(cm.saveToInternalFile(data, "EntityActualData"))
+            backedup = true;
+
+        return backedup;
+    }
+
+    /**
+     * Retrieves the data of ActualData from an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean restoreEntityData(){
+        boolean restored = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.addAll(cm.getInternalFileData("EntityActualData"));
+        if(!data.isEmpty()) {
+            restored = true;
+            String[] dList = data.get(0).split(";");
+            this.actual_ID = Long.parseLong(dList[0]);
+            this.departureTime = dList[1];
+            this.arrivalTime = dList[2];
+            this.fuelBalance = Float.parseFloat(dList[3]);
+            this.fuelUsed = Float.parseFloat(dList[4]);
+            this.totalTripDuration = dList[5];
+            this.totalTripDistance = Float.parseFloat(dList[6]);
+            this.gateParkingName = dList[7];
+        }
+        return restored;
+    }
+
+    public boolean isSameAs(@NonNull ActualData ad){
         return (this.departureTime.equals(ad.departureTime) &&
         this.arrivalTime.equals(ad.arrivalTime) &&
         this.fuelBalance == ad.fuelBalance &&

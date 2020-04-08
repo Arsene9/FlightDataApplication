@@ -14,6 +14,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.naftech.flightdataapplication.TabManager.AircraftFragment;
+import com.example.naftech.flightdataapplication.TabManager.ArrivalFragment;
+import com.example.naftech.flightdataapplication.TabManager.DepartureFragment;
+import com.example.naftech.flightdataapplication.YunSocketHandler.YunSocketController;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,6 +40,9 @@ import BusinessObjectLayer.Location;
 import BusinessObjectLayer.Runway;
 import DatabaseLayer.DatabaseManager;
 
+import static com.example.naftech.flightdataapplication.TabManager.AircraftFragment.flightNumACTV;
+
+
 public class MainPage extends AppCompatActivity {
 
     private TabLayout tabview;
@@ -49,18 +57,24 @@ public class MainPage extends AppCompatActivity {
     protected static MenuItem cancelAction;
     protected static MenuItem updateServerDB;
     protected static MenuItem restoreDB;
+    protected static MenuItem resetFP;
     private Toolbar toolbar;
+    private boolean remove;
 
     private List<Fragment> fragmentList;
-    private CommonMethod cm;
+    private static CommonMethod cm;
 
-    private PrintWriter output;
-    private BufferedReader input;
-    public static Thread MainThread = null;
-    private Socket socket = null;
-    private volatile int rx;
-    private final static String ARDUINO_IP_ADDRESS = "192.168.240.1";//"10.0.132.208";   //IP Address of the Arduino yun
-    private final static int PORT = 4444 ;   //Port through which socket communication occurs
+    public static YunSocketController yunThread = new YunSocketController();
+    public Thread dispatchThread = null;
+    private boolean dispatch = false;
+
+//    private PrintWriter output;
+//    private BufferedReader input;
+//    public static Thread MainThread = null;
+//    private Socket socket = null;
+//    private volatile int rx;
+//    private final static String ARDUINO_IP_ADDRESS = "192.168.240.1";//"10.0.132.208";   //IP Address of the Arduino yun
+//    private final static int PORT = 4444 ;   //Port through which socket communication occurs
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +147,7 @@ public class MainPage extends AppCompatActivity {
         cancelAction = menu.findItem(R.id.cancelAction);
         updateServerDB = menu.findItem(R.id.updateServerDBAction);
         restoreDB = menu.findItem(R.id.restoreDBAction);
+        resetFP = menu.findItem(R.id.resetFlightPlan);
         saveAction.setVisible(false);
         cancelAction.setVisible(false);
         addAction.setVisible(false);
@@ -150,6 +165,7 @@ public class MainPage extends AppCompatActivity {
             startActivity(addAirport);
         }
         else if(Item == restoreDB){
+            //Restores the database from the data files
             //dirFileGen();
             String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
             File folder = new File(externalStorage + File.separator + "FlightTripData");
@@ -161,20 +177,85 @@ public class MainPage extends AppCompatActivity {
             cm.messageToaster(MainPage.this, "Flight Data has been restored");
         }
         else if(Item == updateServerDB){
-//            String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
-//            File folder = new File(externalStorage + File.separator + "FlightTripData");//"/data/data/com.example.naftech.flightdataapplication/files");
-//            File[] fileList = folder.listFiles();
-////            String[] fileNList =  {"actualdata.txt", "aircrafts.txt", "arrival.txt",
-////                    "departure.txt", "flightplan.txt", "location.txt", "runway.txt"};
-//            for(File trgF : fileList){//fileNList){
-//                restoreDatabaseFromFile(trgF);
-////                new SocketWritter("Sending" + trgF);
-//            }
-            cm.messageToaster(MainPage.this, "ServerUpdat not yet available");
+            //Submits the data files to the data server via wifi(private)
+            YunSocketController yunThread = new YunSocketController();
+            Thread yunControllerThread = new Thread(yunThread);
+            yunControllerThread.start();
+            while(!yunThread.getStatus().startsWith("D"))
+            cm.messageToaster(MainPage.this, yunThread.getStatus());
+            String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
+            File folder = new File(externalStorage + File.separator + "FlightTripData");//"/data/data/com.example.naftech.flightdataapplication/files");
+            File[] fileList = folder.listFiles();
+//            String[] fileNList =  {"actualdata.txt", "aircrafts.txt", "arrival.txt",
+//                    "departure.txt", "flightplan.txt", "location.txt", "runway.txt"};
+            for(File trgF : fileList){//fileNList){
+                yunThread.SendMessage("Sending" + trgF.getName());
+                cm.messageToaster(MainPage.this, "Sending " + trgF.getName());
+                for(String data : getFileDataList(trgF)){
+                    yunThread.SendMessage("Data" + data);
+                }
+                yunThread.SendMessage("Save");
+                yunThread.SendMessage("Stop");
+            }
+            yunThread.DisconnectYun();
+            cm.messageToaster(MainPage.this, "ServerUpdate complete");
+//
+//            //Process Yunmessage
+////            if(message.startsWith("Data")){
+////                String newData = message.replace("Data", "");
+////                data.add(newData);
+////            }else if(message.equals("Save")){
+////                save(targetFile, data);
+////            }else if(message.startsWith("Sending")){
+////                String fileName = message.replace("Sending", "");
+////                targetFile = cm.getFile(fileName);
+////            }else if(message.equals("Done")){
+////                rx = 0;
+////            }
+//            yunThread.DisconnectYun();
+//            while(yunThread.getStatus().startsWith("C"));
+//            cm.messageToaster(MainPage.this, yunThread.getStatus());
+        }
+        else if(Item == resetFP){
+            if(remove){
+                ArrivalFragment.clearFragValuesDisplayed();
+                DepartureFragment.clearFragValuesDisplayed();
+                AircraftFragment.clearFragValuesDisplayed();
+                remove = false;
+            }
+            else{
+                ArrivalFragment.restoreFragValues();
+                DepartureFragment.restoreFragValues();
+                AircraftFragment.restoreFragValues();
+                remove = true;
+            }
         }
 
         return true;
     }
+
+//    class dispatcherThread implements Runnable{
+//
+//        @Override
+//        public void run() {
+//            while(!dispatch);
+//
+//            while(yunThread.getStatus().startsWith("D"));
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    while(!yunThread.getStatus().startsWith("D")) {
+//                        if(yunThread.yunMSG.startsWith("M"))
+//                            cm.messageToaster(MainPage.this, yunThread.yunMSG);
+//                        else
+//                            flightNumACTV.setText(yunThread.yunMSG);
+//                        yunThread.persueReading();
+//                    }
+//                }
+//            });
+//
+//        }
+//    }
 
     /// Threads definition for wifi configuration, data reception and transmission
 
@@ -328,14 +409,15 @@ public class MainPage extends AppCompatActivity {
 //    private void messageToaster(String msg){
 //        Toast.makeText(MainPage.this, msg, Toast.LENGTH_LONG).show();
 //    }
-    private void dirFileGen(){
+    protected static boolean dirFileGen(){
+        boolean generated = false;
         String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         File outputDirectory = new File(externalStorage + File.separator + "FlightTripData" );
 
         if(!outputDirectory.exists()){
             if(outputDirectory.mkdir())
-                cm.messageToaster(MainPage.this, "The Directory was created YaY!! =)");
+                generated = true;//cm.messageToaster(, "The Directory was created YaY!! =)");
         }
 
         //File folder = new File("/data/data/com.example.naftech.flightdataapplication/files");
@@ -344,7 +426,6 @@ public class MainPage extends AppCompatActivity {
         for (String trgF : fileNList) {
             File outputFile = new File(externalStorage + File.separator +
                     "FlightTripData" + File.separator + trgF);
-
             try {
                 if(!outputFile.exists())
                     outputFile.createNewFile();
@@ -352,6 +433,7 @@ public class MainPage extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+        return generated;
     }
 
     private List<String> getFileDataList(File file){

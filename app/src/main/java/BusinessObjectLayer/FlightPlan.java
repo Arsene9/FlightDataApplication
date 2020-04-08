@@ -1,5 +1,10 @@
 package BusinessObjectLayer;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class FlightPlan {
     private long flightPlanID;
     private String tripDurationEstimate; // TIME(2) NOT NULL,
@@ -190,6 +195,53 @@ public class FlightPlan {
 
     public void setfPStatus(String fPStatus) {
         this.fPStatus = fPStatus;
+    }
+
+    /**
+     * Stores the data of FlightPlan into an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean backupEntityData(){
+        boolean backedup = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.add(listFlightPlan());
+
+        if(cm.saveToInternalFile(data, "EntityFlightPlanData"))
+            backedup = true;
+
+        return backedup;
+    }
+
+    /**
+     * Retrieves the data of FlightPlan from an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean restoreEntityData(){
+        boolean restored = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.addAll(cm.getInternalFileData("EntityFlightPlanData"));
+        if(!data.isEmpty()) {
+            restored = true;
+            String[] dList = data.get(0).split(";");
+            this.tripDurationEstimate = dList[1];
+            this.fuelTaken = Float.parseFloat(dList[2]);
+            this.aircraftID = Long.parseLong(dList[3]);
+            this.departureID = Long.parseLong(dList[4]);
+            this.arrivalID = Long.parseLong(dList[5]);
+            this.actualID = Long.parseLong(dList[6]);
+            this.tripDistanceEstimate = Float.parseFloat(dList[7]);
+            this.climbSpeed = Integer.parseInt(dList[8]);
+            this.cruiseSpeed = Integer.parseInt(dList[9]);
+            this.cruiseAltitude = Integer.parseInt(dList[10]);
+            this.payloadWeight = Float.parseFloat(dList[11]);
+            this.fuelWeight = Float.parseFloat(dList[12]);
+            this.grossWeight = Float.parseFloat(dList[13]);
+            if(dList.length > 14)
+                this.fPStatus = dList[14];
+        }
+        return restored;
     }
 
     public boolean isSameAs(FlightPlan fP){

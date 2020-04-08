@@ -1,6 +1,5 @@
 package DatabaseLayer;
 
-
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
@@ -11,7 +10,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import BusinessObjectLayer.Aircraft;
 import BusinessObjectLayer.Arrival;
 
 public class ArrivalTable {

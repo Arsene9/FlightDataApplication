@@ -3,6 +3,7 @@ package DatabaseLayer;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.se.omapi.Reader;
 
 import java.util.List;
 
@@ -68,7 +69,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return ActualTable.deleteItem(db, data);
     }
 
-    //public boolean update()
+    public boolean updateActual(String actualID, String nVal, String colName){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return ActualTable.updateItem(db, actualID, nVal, colName);
+    }
 
     public boolean restoreActualData(List<ActualData> actualDataList){
         SQLiteDatabase db = this.getReadableDatabase();
@@ -112,6 +116,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return ArrivalTable.deleteItem(db, data);
     }
 
+    public boolean updateArrival(String arrivalID, String nVal, String colName){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return ArrivalTable.updateItem(db, arrivalID, nVal, colName);
+    }
+
     public boolean restoreArrivalData(List<Arrival> arrivalList) {
         SQLiteDatabase db = this.getReadableDatabase();
         return ArrivalTable.restoreDB(db, arrivalList);
@@ -120,6 +129,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Arrival> getArrivals(){
         SQLiteDatabase db = this.getReadableDatabase();
         return ArrivalTable.getItems(db);
+    }
+
+    public long getArrivalTableSize(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return ArrivalTable.getTableCount(db);
     }
 
     /////////////////////////////////  Departure Table Manager  ////////////////////////////////////
@@ -138,11 +152,20 @@ public class DatabaseManager extends SQLiteOpenHelper {
         return DepartureTable.restoreDB(db, departureList);
     }
 
+    public boolean updateDeparture(String departureID, String nVal, String colName){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return DepartureTable.updateItem(db, departureID, nVal, colName);
+    }
+
     public List<Departure> getDepartures(){
         SQLiteDatabase db = this.getReadableDatabase();
         return DepartureTable.getItems(db);
     }
 
+    public long getDepartureTableSize(){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return DepartureTable.getTableCount(db);
+    }
     ///////////////////////////////  Flight Plan Table Manager  ////////////////////////////////////
     public boolean addFlightPlan(FlightPlan data){
         SQLiteDatabase db = this.getWritableDatabase();
@@ -152,6 +175,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public boolean deleteFlightPlan(FlightPlan data){
         SQLiteDatabase db = this.getWritableDatabase();
         return FlightPlanTable.deleteItem(db, data);
+    }
+
+    public boolean updateFlightPlan(String tID, String nVal, String colName){
+        SQLiteDatabase db = this.getReadableDatabase();
+        return FlightPlanTable.updateItem(db, tID, nVal, colName);
     }
 
     public boolean restoreFlightPlanData(List<FlightPlan> flightPlanList){
@@ -205,6 +233,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         return RunwayTable.getItems(db, loc_ID);
     }
+
     public List<Runway> getRwys() {
         SQLiteDatabase db = this.getReadableDatabase();
         return RunwayTable.getItems(db);

@@ -28,4 +28,10 @@
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
         android:title="Update Server DB"
         app:showAsAction="" />
+    <item
+        android:id="@+id/resetFlightPlan"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_revert"
+        android:title="Reset"
+        app:showAsAction="always" />
 </menu>
