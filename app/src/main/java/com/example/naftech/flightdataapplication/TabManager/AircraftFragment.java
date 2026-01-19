@@ -40,8 +40,6 @@ public class AircraftFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        //messageToaster("You are currently in the Aircraft Tab");
     }
 
     @Nullable
@@ -95,7 +93,7 @@ public class AircraftFragment extends Fragment {
         aircratFragData.add(callSignACTV.getText().toString());
         aircratFragData.add(flightNumACTV.getText().toString());
         aircratFragData.add(String.valueOf(saveDataBtn.getVisibility()));
-
+        aircraftData.backupEntityData();
         cm.saveToInternalFile(aircratFragData, activityDataFileName);
     }
 
@@ -162,17 +160,29 @@ public class AircraftFragment extends Fragment {
 
         airlineNACTV.setAdapter(Ulist); //Attaches the dropdown list Ulist to TopUnit
         airlineNACTV.setMinimumWidth(500);
-        //DownUnit.setAdapter(Ulist); //Attaches the dropdown list Ulist to DownUnit
-        //DownUnit.setMinimumWidth(200);
 
         airlineNACTV.setDropDownWidth(900);
-        //DownUnit.setDropDownWidth(300);
     }
 
     ///////////////////////////////   Helper Methods   /////////////////////////////////
 
     /**
-     * Replaces all the values in the textboxes of the fragment with an empty string
+     * clears the values of the Aircraft object
+     */
+    public static void clearAircraftObject(){
+        aircraftData.backupEntityData();
+        aircraftData.resetAircraft();
+    }
+
+    /**
+     * restores the values of the Aircraft objects
+     */
+    public static void restoreAircraftObject(){
+        aircraftData.restoreEntityData();
+    }
+
+    /**
+     * Replaces all the values in the textBoxes of the fragment with an empty string
      */
     public static void clearFragValuesDisplayed(){
         airlineNACTV.setText("");
@@ -188,7 +198,7 @@ public class AircraftFragment extends Fragment {
     }
 
     /**
-     * Replaces all the fragment's visible textbox values with those stored in the storage file
+     * Replaces all the fragment's visible textBox values with those stored in the storage file
      */
     public static void restoreFragValues(){
         if(cm.getInternalFileData(activityDataFileName) != null) {
@@ -202,19 +212,10 @@ public class AircraftFragment extends Fragment {
             if(aircratFragData.size() > 6)
                 saveDataBtn.setVisibility(Integer.parseInt(aircratFragData.get(6)));
 
+
             if(!airlineNACTV.getText().toString().isEmpty()){
-//                aircraftData.setAirlineName(airlineNACTV.getText().toString());
-//                aircraftData.setAircraftType(aircraftTypeACTV.getText().toString());
-//                aircraftData.setManufacturer(manufACTV.getText().toString());
-//                aircraftData.setTailNum(tailNumACTV.getText().toString());
-//                aircraftData.setCallSign(callSignACTV.getText().toString());
-//                aircraftData.setFlightNum(flightNumACTV.getText().toString());
-                for(String plane : pList) {
-                    if(!airlineNACTV.getText().toString().isEmpty() && plane.startsWith(airlineNACTV.getText().toString())) {
-                        aircraftData = planeList.get(pList.indexOf(plane));
-                        DepartureFragment.getFlightPlanInfo().setAircraftID(aircraftData.getAircraftID());
-                    }
-                }
+                restoreAircraftObject();
+                DepartureFragment.getFlightPlanInfo().setAircraftID(aircraftData.getAircraftID());
             }
 
             aircratFragData.clear();

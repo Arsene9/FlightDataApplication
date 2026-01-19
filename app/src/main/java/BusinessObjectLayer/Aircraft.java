@@ -1,5 +1,10 @@
 package BusinessObjectLayer;
 
+import com.example.naftech.flightdataapplication.CommonMethod;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Aircraft {
     private long aircraftID;
     private String airlineName; // VARCHAR(30) NOT NULL,
@@ -91,6 +96,69 @@ public class Aircraft {
 
     public void setFlightNum(String flightNum) {
         this.flightNum = flightNum;
+    }
+
+    /**
+     * Re-initializes the values of Aircraft parameters.
+     * Sets the values of Aircraft object to 0 or null
+     */
+    public void resetAircraft(){
+        this.aircraftID = 0;
+        this.airlineName = null;
+        this.aircraftType = null;
+        this.manufacturer = null;
+        this.tailNum = null;
+        this.callSign = null;
+        this.flightNum = null;
+    }
+
+    /**
+     * Stores the data of Aircraft into an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean backupEntityData(){
+        boolean backedup = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.add(listAircrafts());
+
+        if(cm.saveToInternalFile(data, "EntityAircraft"))
+            backedup = true;
+
+        return backedup;
+    }
+
+    /**
+     * Retrieves the data of Aircraft from an internal file
+     * @return true if the action was successful and false when it fails
+     */
+    public boolean restoreEntityData(){
+        boolean restored = false;
+        CommonMethod cm = new CommonMethod();
+        List<String> data = new ArrayList<>();
+        data.addAll(cm.getInternalFileData("EntityAircraft"));
+        if(!data.isEmpty()) {
+            restored = true;
+            String[] dList = data.get(0).split(";");
+            try {
+                this.aircraftID = Long.parseLong(dList[0]);
+                this.airlineName = dList[1];
+                this.aircraftType = dList[2];
+                this.manufacturer = dList[3];
+                this.tailNum = dList[4];
+                this.callSign = dList[5];
+                this.flightNum = dList[6];
+            }
+            catch (IndexOutOfBoundsException e){
+                this.airlineName = "";
+                this.aircraftType = "";
+                this.manufacturer = "";
+                this.tailNum = "";
+                this.callSign = "";
+                this.flightNum = "";
+            }
+        }
+        return restored;
     }
 
     public boolean isSameAs(Aircraft data){

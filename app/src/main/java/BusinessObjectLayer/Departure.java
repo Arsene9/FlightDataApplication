@@ -5,6 +5,8 @@ import com.example.naftech.flightdataapplication.CommonMethod;
 import java.util.ArrayList;
 import java.util.List;
 
+import DatabaseLayer.DatabaseManager;
+
 public class Departure {
     private long departureID;
     private long locationID; // INT, //CONSTRAINT FK_Dep_Loc FOREIGN KEY (Location_ID)//REFERENCES Location (Location_ID)
@@ -66,6 +68,50 @@ public class Departure {
     }
 
     /**
+     * Re-initializes the values of Departure parameters.
+     * Sets the values of Departure object to 0 or null
+     */
+    public void resetDeparture(){
+        this.departureID = 0;
+        this.locationID = 0;
+        this.gateParkingName = null;
+        this.departureTime = null;
+    }
+
+    /**
+     * Updates the database and the object's attribute Gate Parking name
+     * @param dbMan : The database manager instance
+     * @param newValue : The new value for the object's attribute
+     */
+    public void updateDBGate(DatabaseManager dbMan, String newValue){
+        String columnName = "GATE_Parking_Name";
+        if(dbMan.updateDeparture(String.valueOf(getDepartureID()), newValue, columnName))
+            setGateParkingName(newValue);
+    }
+
+    /**
+     * Updates the database and the object's attribute Location ID
+     * @param dbMan : The database manager instance
+     * @param newValue : The new value for the object's attribute
+     */
+    public void updateDBLocationID(DatabaseManager dbMan, String newValue){
+        String columnName = "Location_ID";
+        if(dbMan.updateDeparture(String.valueOf(getDepartureID()), newValue, columnName))
+            setLocationID(Long.parseLong(newValue));
+    }
+
+    /**
+     * Updates the database and the object's attribute Departure Time
+     * @param dbMan : The database manager instance
+     * @param newValue : The new value for the object's attribute
+     */
+    public void updateDBDepartTime(DatabaseManager dbMan, String newValue){
+        String columnName = "Departure_Time";
+        if(dbMan.updateDeparture(String.valueOf(getDepartureID()), newValue, columnName))
+            setDepartureTime(newValue);
+    }
+
+    /**
      * Stores the data of Departure into an internal file
      * @return true if the action was successful and false when it fails
      */
@@ -93,12 +139,21 @@ public class Departure {
         if(!data.isEmpty()) {
             restored = true;
             String[] dList = data.get(0).split(";");
-            this.locationID = Long.parseLong(dList[1]);
-            this.gateParkingName = dList[2];
-            if(dList.length == 4)
-                this.departureTime = dList[3];
-            else
+            try {
+                this.departureID = Long.parseLong(dList[0]);
+                this.locationID = Long.parseLong(dList[1]);
+                this.gateParkingName = dList[2];
+                if (dList.length == 4)
+                    this.departureTime = dList[3];
+                else
+                    this.departureTime = "";
+            }
+            catch(IndexOutOfBoundsException e){
+                this.locationID = 0;
+                this.gateParkingName = "";
                 this.departureTime = "";
+                this.departureTime = "";
+            }
         }
         return restored;
     }

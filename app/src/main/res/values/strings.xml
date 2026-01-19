@@ -4,7 +4,6 @@
     <string name="departure">Departure</string>
     <string name="arrival">Arrival</string>
     <string name="flight_plan">Flight Plan</string>
-    <string name="button">Button</string>
     <string name="Departure_Gate_parking">Departure Gate/Parking</string>
     <string name="Arrival_Gate_parking">Arrival Gate/Parking</string>
     <string name="cruise_altitude">Cruise Altitude</string>
@@ -46,8 +45,5 @@
     <string name="total_trip_distance_in_nm">Total Trip Distance (in nm)</string>
     <string name="arrival_gate_parking">Arrival Gate/Parking</string>
     <string name="e34">E34</string>
-    <string name="edit">Edit</string>
     <string name="add_location">Add Location</string>
-    <string name="edit_location">Edit Location</string>
-    <string name="add">Add</string>
 </resources>

@@ -12,7 +12,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.naftech.flightdataapplication.TabManager.AircraftFragment;
 import com.example.naftech.flightdataapplication.TabManager.ArrivalFragment;
@@ -22,12 +21,8 @@ import com.example.naftech.flightdataapplication.YunSocketHandler.YunSocketContr
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +34,6 @@ import BusinessObjectLayer.FlightPlan;
 import BusinessObjectLayer.Location;
 import BusinessObjectLayer.Runway;
 import DatabaseLayer.DatabaseManager;
-
-import static com.example.naftech.flightdataapplication.TabManager.AircraftFragment.flightNumACTV;
 
 
 public class MainPage extends AppCompatActivity {
@@ -163,6 +156,7 @@ public class MainPage extends AppCompatActivity {
         if (Item == addAction) {
             Intent addAirport = new Intent(MainPage.this, AirportLocationDataDisplay.class);
             startActivity(addAirport);
+            finish();
         }
         else if(Item == restoreDB){
             //Restores the database from the data files
@@ -182,7 +176,7 @@ public class MainPage extends AppCompatActivity {
             Thread yunControllerThread = new Thread(yunThread);
             yunControllerThread.start();
             while(!yunThread.getStatus().startsWith("D"))
-            cm.messageToaster(MainPage.this, yunThread.getStatus());
+                cm.messageToaster(MainPage.this, yunThread.getStatus());
             String externalStorage = Environment.getExternalStorageDirectory().getAbsolutePath();
             File folder = new File(externalStorage + File.separator + "FlightTripData");//"/data/data/com.example.naftech.flightdataapplication/files");
             File[] fileList = folder.listFiles();
@@ -221,12 +215,20 @@ public class MainPage extends AppCompatActivity {
                 ArrivalFragment.clearFragValuesDisplayed();
                 DepartureFragment.clearFragValuesDisplayed();
                 AircraftFragment.clearFragValuesDisplayed();
+
+                DepartureFragment.clearDepartObjects();
+                ArrivalFragment.clearActualObject();
+                AircraftFragment.clearAircraftObject();
                 remove = false;
             }
             else{
                 ArrivalFragment.restoreFragValues();
                 DepartureFragment.restoreFragValues();
                 AircraftFragment.restoreFragValues();
+
+                DepartureFragment.restoreDepartObjects();
+                ArrivalFragment.restoreActualObject();
+                AircraftFragment.restoreAircraftObject();
                 remove = true;
             }
         }

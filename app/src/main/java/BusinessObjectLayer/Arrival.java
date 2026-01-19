@@ -3,8 +3,9 @@ package BusinessObjectLayer;
 import com.example.naftech.flightdataapplication.CommonMethod;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import DatabaseLayer.DatabaseManager;
 
 public class Arrival {
     private long arrivalID;
@@ -67,6 +68,50 @@ public class Arrival {
     }
 
     /**
+     * Re-initializes the values of Arrival parameters.
+     * Sets the values of Arrival object to 0 or null
+     */
+    public void resetArrival(){
+        this.arrivalID = 0;
+        this.locationID = 0;
+        this.gateParking = null;
+        this.arrivalTime = null;
+    }
+
+    /**
+     * Updates the database and the object's attribute Gate Parking name
+     * @param dbMan : The database manager instance
+     * @param newValue : The new value for the object's attribute
+     */
+    public void updateDBGate(DatabaseManager dbMan, String newValue){
+        String columnName = "GATE_Parking_Name";
+        if(dbMan.updateArrival(String.valueOf(getArrivalID()), newValue, columnName))
+            setGateParking(newValue);
+    }
+
+    /**
+     * Updates the database and the object's attribute Location ID
+     * @param dbMan : The database manager instance
+     * @param newValue : The new value for the object's attribute
+     */
+    public void updateDBLocationID(DatabaseManager dbMan, String newValue){
+        String columnName = "Location_ID";
+        if(dbMan.updateArrival(String.valueOf(getArrivalID()), newValue, columnName))
+            setLocationID(Long.parseLong(newValue));
+    }
+
+    /**
+     * Updates the database and the object's attribute Arrival Time
+     * @param dbMan : The database manager instance
+     * @param newValue : The new value for the object's attribute
+     */
+    public void updateDBArriveTime(DatabaseManager dbMan, String newValue){
+        String columnName = "Arrival_Time";
+        if(dbMan.updateArrival(String.valueOf(getArrivalID()), newValue, columnName))
+            setArrivalTime(newValue);
+    }
+
+    /**
      * Stores the data of Arrival into an internal file
      * @return true if the action was successful and false when it fails
      */
@@ -94,12 +139,21 @@ public class Arrival {
         if(!data.isEmpty()) {
             restored = true;
             String[] dList = data.get(0).split(";");
-            this.locationID = Long.parseLong(dList[1]);
-            this.gateParking = dList[2];
-            if(dList.length == 4)
-                this.arrivalTime = dList[3];
-            else
+            try {
+                this.arrivalID = Long.parseLong(dList[0]);
+                this.locationID = Long.parseLong(dList[1]);
+                this.gateParking = dList[2];
+                if (dList.length == 4)
+                    this.arrivalTime = dList[3];
+                else
+                    this.arrivalTime = "";
+            }
+            catch (IndexOutOfBoundsException e){
+                this.locationID = 0;
+                this.gateParking = "";
                 this.arrivalTime = "";
+                this.arrivalTime = "";
+            }
         }
         return restored;
     }

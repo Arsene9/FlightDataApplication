@@ -16,7 +16,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.naftech.flightdataapplication.CommonMethod;
 import com.example.naftech.flightdataapplication.R;
@@ -49,13 +48,12 @@ public class DepartureFragment extends Fragment {
     private static Location departLocInfo;
     private static Location arriveLocInfo;
     private static FlightPlan flightPlanInfo;
-    private static Arrival arriveInfo;
-    private static Departure departInfo;
-    private Runway deprwyInfo, arrrwyInfo;
+    static Arrival arriveInfo;
+    static Departure departInfo;
     private List<Location> locList;
     private List<Runway> arrivalRwyList, departureRwyList;
     private static List<String> lList, depRwyList, arrRwyList;
-    private static ArrayAdapter<String> depLoclist, arrLoclist;
+    private static ArrayAdapter<String> depLocList, arrLocList;
     private Calendar calendar;
     private TimePickerDialog timePicker;
     private static CommonMethod cm;
@@ -71,8 +69,6 @@ public class DepartureFragment extends Fragment {
         flightPlanInfo = new FlightPlan();
         arriveInfo = new Arrival();
         departInfo = new Departure();
-        deprwyInfo = new Runway();
-        arrrwyInfo = new Runway();
         locList = new ArrayList<>();
         arrivalRwyList = new ArrayList<>();
         departureRwyList = new ArrayList<>();
@@ -80,30 +76,10 @@ public class DepartureFragment extends Fragment {
         depRwyList = new ArrayList<>();
         lList = new ArrayList<>();
 
-//        departureRwyList.addAll(dbMan.getRwys(locInfo.getLocationID()));
-//        messageToaster(String.valueOf(departureRwyList.size()));
-//        for(Runway r : departureRwyList){
-////            depRwyList.add(r.getName() + " " + r.getLength() + "ft");
-//            if(dbMan.deleteRunway(r))
-//                messageToaster("Deleted " + r.getRunwayID());
-//        }
-
         locList.addAll(dbMan.getLocations());
         for(Location l : locList){
             lList.add(l.getAirportID() + " "+ l.getAirportName() + " " + l.getCity() + " " + l.getCountry());
-//            dbMan.deleteLocation(l);
         }
-
-//        arriveInfo.setArrivalTime("7/10/2019 20:16:30");
-//        arriveInfo.setGateParking("G12");
-//        arriveInfo.setLocationID(3);
-//        dbMan.addArrival(arriveInfo);
-//        cm.messageToaster(getContext(), arriveInfo.listArrival());
-//        List<String> data = new ArrayList<>();
-//        for(Arrival arrv : dbMan.getArrivals()){
-//            data.add(arrv.listArrival());
-//        }
-//        cm.save(getContext(), "arrival.txt", data);
 
     }
 
@@ -141,8 +117,6 @@ public class DepartureFragment extends Fragment {
 
         arriveArp.setOnItemClickListener(onArrivalLocSelected);
         departArp.setOnItemClickListener(onDepartureLocSelected);
-//        ArrivalFragment.arriveRwy.setOnItemClickListener(onArrivalRwySelected);
-//        departRwy.setOnItemClickListener(onDepartureRwySelected);
         arriveTime.setOnClickListener(addArrivalEstimatedTime);
         departTime.setOnClickListener(onDepartTimeEditTextClick);
         flightTimeEst.setOnClickListener(onTripDurationEditTextClick);
@@ -178,6 +152,7 @@ public class DepartureFragment extends Fragment {
         departFragData.add(String.valueOf(editBtn.getVisibility()));
         departFragData.add(String.valueOf(newBtn.getVisibility()));
 
+
         flightPlanInfo.backupEntityData();
         arriveInfo.backupEntityData();
         departInfo.backupEntityData();
@@ -190,30 +165,22 @@ public class DepartureFragment extends Fragment {
         super.onResume();
         restoreFragValues();
         int count = 0;
+        //Restore the dropdown lists
         for(String loc : lList){
             if(!departArp.getText().toString().isEmpty() && loc.startsWith(departArp.getText().toString())) {
                 ///Regenerate the Departure runways' List
                 departLocInfo = locList.get(lList.indexOf(loc));
                 departArp.setText(departLocInfo.getAirportID() + " " + departLocInfo.getAirportName());
-                //messageToaster(String.valueOf(departLocInfo.getLocationID())+ " " + departLocInfo.getAirportID());
-//                departureRwyList.addAll(dbMan.getRwys(departLocInfo.getLocationID()));
-//                if(departureRwyList.isEmpty())
-//                    departureRwyList.addAll(dbMan.getRwys(departLocInfo.getLocationID()));
-//                else{
                     departureRwyList.clear();
                     depRwyList.clear();
                     departureRwyList.addAll(dbMan.getRwys(departLocInfo.getLocationID()));
-                    //get depart info IDs
-//                    departInfo.setLocationID(departLocInfo.getLocationID());
-//                    departInfo.setDepartureID(dbMan.getDepartureTableSize());
-//                }
                 for(Runway r : departureRwyList){
                     depRwyList.add(r.getName() + "   " + r.getLength() + "ft  " + r.getILS_ID()
                             + "   " + r.getILS_Freq() + "Hz   " + r.getHdg());
                 }
-                depLoclist = new ArrayAdapter<String>(getContext(),
+                depLocList = new ArrayAdapter<String>(getContext(),
                         R.layout.support_simple_spinner_dropdown_item, depRwyList);
-                departRwy.setAdapter(depLoclist); //Attaches the dropdown list depLoclist to departRwy
+                departRwy.setAdapter(depLocList); //Attaches the dropdown list depLocList to departRwy
                 departRwy.setDropDownWidth(900);
                 count++;
             }
@@ -221,32 +188,24 @@ public class DepartureFragment extends Fragment {
                 ///Regenerate the Arrival runways' list
                 arriveLocInfo = locList.get(lList.indexOf(loc));
                 arriveArp.setText(arriveLocInfo.getAirportID() + " " + arriveLocInfo.getAirportName());
-//                arrivalRwyList.addAll(dbMan.getRwys(arriveLocInfo.getLocationID()));
-//                if (arrivalRwyList.isEmpty()) {
-//                    arrivalRwyList.addAll(dbMan.getRwys(arriveLocInfo.getLocationID()));
-//                } else {
                     arrivalRwyList.clear();
                     arrRwyList.clear();
                     arrivalRwyList.addAll(dbMan.getRwys(arriveLocInfo.getLocationID()));
-                    //get arrival info IDs
-//                    arriveInfo.setLocationID(arriveLocInfo.getLocationID());
-//                    arriveInfo.setArrivalID(dbMan.getArrivalTableSize());
-//                }
                 for(Runway r : arrivalRwyList){
                     arrRwyList.add(r.getName() + "   " + r.getLength() + "ft  " + r.getILS_ID()
                             + "   " + r.getILS_Freq() + "Hz   " + r.getHdg());
                 }
-                arrLoclist = new ArrayAdapter<String>(getContext(),
+                arrLocList = new ArrayAdapter<String>(getContext(),
                         R.layout.support_simple_spinner_dropdown_item, arrRwyList);
-                ArrivalFragment.arriveRwy.setAdapter(arrLoclist); //Attaches the dropdown list arrLoclist to arriveRwy
+                ArrivalFragment.arriveRwy.setAdapter(arrLocList); //Attaches the dropdown list arrLoclist to arriveRwy
                 ArrivalFragment.arriveRwy.setDropDownWidth(900);
                 count++;
             }
             else if(count == 2) break;
         }
-        flightPlanInfo.restoreEntityData();
-        arriveInfo.restoreEntityData();
-        departInfo.restoreEntityData();
+//        flightPlanInfo.restoreEntityData();
+//        arriveInfo.restoreEntityData();
+//        departInfo.restoreEntityData();
     }
 
     ////////////////////////////////////  Event Listeners Definition  //////////////////////////////
@@ -268,7 +227,6 @@ public class DepartureFragment extends Fragment {
 
             int hour = calendar.get(Calendar.HOUR_OF_DAY);
             int minute = calendar.get(Calendar.MINUTE);
-            //int second = calendar.get(Calendar.SECOND);
             timePicker = new TimePickerDialog(getContext(), onTimeSetListenerDepartTime, hour, minute, true);
             timePicker.show();
         }
@@ -322,7 +280,7 @@ public class DepartureFragment extends Fragment {
     };
 
     /**
-     * Edits data saved in the database
+     * Edits data saved to object
      */
     private Button.OnClickListener editDepartDataOnClick = new Button.OnClickListener() {
 
@@ -332,45 +290,75 @@ public class DepartureFragment extends Fragment {
             String alertTitle = "Edit Flight Plan";
             String posBtn = "Proceed", negBtn = "Cancel";
             //Popup message to notify user of intended action
-            //Cancel new data save
-            if(!cm.showAlertDialog(getActivity(), alertTitle, alertMSG, posBtn, negBtn)){
-                cm.messageToaster(getActivity(), "Your changes were not saved");
-            }
-            //Perform new data save
-            else {
-                //Perform edit data on database
-                if (!departArp.getText().equals(String.valueOf(departInfo.getLocationID())))
-                    dbMan.updateDeparture(String.valueOf(departInfo.getDepartureID()), String.valueOf(departLocInfo.getLocationID()), "Location_ID");
-                if (!arriveArp.getText().equals(String.valueOf(arriveInfo.getLocationID())))
-                    dbMan.updateArrival(String.valueOf(arriveInfo.getArrivalID()), String.valueOf(arriveInfo.getLocationID()), "Location_ID");
-                if (!departGate.getText().equals(String.valueOf(departInfo.getGateParkingName())))
-                    dbMan.updateDeparture(String.valueOf(departInfo.getDepartureID()), departGate.getText().toString(), "GATE_Parking_Name");//departInfo.setGateParkingName(String.valueOf(departGate.getText()));
-                if (!arriveGate.getText().equals(String.valueOf(arriveInfo.getGateParking())))
-                    dbMan.updateArrival(String.valueOf(arriveInfo.getArrivalID()), arriveGate.getText().toString(), "GATE_Parking_Name");//arriveInfo.setGateParking(arriveGate.getText().toString());
-                if (!cruiseAltitude.getText().equals(String.valueOf(flightPlanInfo.getCruiseAltitude())))
-                    flightPlanInfo.setCruiseAltitude(Integer.valueOf(cruiseAltitude.getText().toString()));
-                if (!flightDistEst.getText().equals(String.valueOf(flightPlanInfo.getTripDistanceEstimate())))
-                    flightPlanInfo.setTripDistanceEstimate(Float.valueOf(flightDistEst.getText().toString()));
-                if (!flightTimeEst.getText().equals(String.valueOf(flightPlanInfo.getTripDurationEstimate())))
-                    flightPlanInfo.setTripDurationEstimate(flightTimeEst.getText().toString());
-                if (!departFuel.getText().equals(String.valueOf(flightPlanInfo.getFuelTaken())))
-                    flightPlanInfo.setFuelTaken(Float.valueOf(departFuel.getText().toString()));
-                if (!fuelWeight.getText().equals(String.valueOf(flightPlanInfo.getFuelWeight())))
-                    flightPlanInfo.setFuelWeight(Float.valueOf(fuelWeight.getText().toString()));
-                if (!grossWeight.getText().equals(String.valueOf(flightPlanInfo.getGrossWeight())))
-                    flightPlanInfo.setGrossWeight(Float.valueOf(grossWeight.getText().toString()));
-                if (!payloadWeight.getText().equals(String.valueOf(flightPlanInfo.getPayloadWeight())))
-                    flightPlanInfo.setPayloadWeight(Float.valueOf(payloadWeight.getText().toString()));
-                if (!climbSpeed.getText().equals(String.valueOf(flightPlanInfo.getClimbSpeed())))
-                    flightPlanInfo.setClimbSpeed(Integer.valueOf(climbSpeed.getText().toString()));
-                if (!cruiseSpeed.getText().equals(String.valueOf(flightPlanInfo.getCruiseSpeed())))
-                    flightPlanInfo.setCruiseSpeed(Integer.valueOf(cruiseSpeed.getText().toString()));
-                if (!departTime.getText().equals(departInfo.getDepartureTime()))
-                    dbMan.updateDeparture(String.valueOf(departInfo.getDepartureID()), departTime.getText().toString(), "Departure_Time");
-                if (!arriveTime.getText().equals(arriveInfo.getArrivalTime()))
-                    dbMan.updateArrival(String.valueOf(arriveInfo.getArrivalID()), arriveTime.getText().toString(), "Arrival_Time");
-                //cm.messageToaster(getActivity(), "Not yet implemented");
-            }
+            new AlertDialog.Builder(getActivity())
+                    //set icon
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    //set title
+                    .setTitle(alertTitle)
+                    //set message
+                    .setMessage(alertMSG)
+                    //set positive button
+                    .setPositiveButton(posBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //Perform edit data on database
+                            if (!departArp.getText().toString().equals(String.valueOf(departInfo.getLocationID()))) {
+                                departInfo.setLocationID(departLocInfo.getLocationID());
+                            }
+                            if (!arriveArp.getText().toString().equals(String.valueOf(arriveInfo.getLocationID()))) {
+                                arriveInfo.setLocationID(arriveLocInfo.getLocationID());
+                            }
+                            if (!departGate.getText().toString().equals(String.valueOf(departInfo.getGateParkingName()))) {
+                                departInfo.setGateParkingName(departGate.getText().toString());
+                            }
+                            if (!arriveGate.getText().toString().equals(String.valueOf(arriveInfo.getGateParking()))) {
+                                arriveInfo.setGateParking(arriveGate.getText().toString());
+                            }
+                            if (!cruiseAltitude.getText().toString().equals(String.valueOf(flightPlanInfo.getCruiseAltitude())))
+                                flightPlanInfo.setCruiseAltitude(Integer.parseInt(cruiseAltitude.getText().toString()));
+
+                            if (!flightDistEst.getText().toString().equals(String.valueOf(flightPlanInfo.getTripDistanceEstimate())))
+                                flightPlanInfo.setTripDistanceEstimate(Float.parseFloat(flightDistEst.getText().toString()));
+
+                            if (!flightTimeEst.getText().toString().equals(String.valueOf(flightPlanInfo.getTripDurationEstimate())))
+                                flightPlanInfo.setTripDurationEstimate(flightTimeEst.getText().toString());
+
+                            if (!departFuel.getText().toString().equals(String.valueOf(flightPlanInfo.getFuelTaken())))
+                                flightPlanInfo.setFuelTaken(Float.parseFloat(departFuel.getText().toString()));
+
+                            if (!fuelWeight.getText().toString().equals(String.valueOf(flightPlanInfo.getFuelWeight())))
+                                flightPlanInfo.setFuelWeight(Float.parseFloat(fuelWeight.getText().toString()));
+
+                            if (!grossWeight.getText().toString().equals(String.valueOf(flightPlanInfo.getGrossWeight())))
+                                flightPlanInfo.setGrossWeight(Float.parseFloat(grossWeight.getText().toString()));
+
+                            if (!payloadWeight.getText().toString().equals(String.valueOf(flightPlanInfo.getPayloadWeight())))
+                                flightPlanInfo.setPayloadWeight(Float.parseFloat(payloadWeight.getText().toString()));
+
+                            if (!climbSpeed.getText().toString().equals(String.valueOf(flightPlanInfo.getClimbSpeed())))
+                                flightPlanInfo.setClimbSpeed(Integer.parseInt(climbSpeed.getText().toString()));
+
+                            if (!cruiseSpeed.getText().toString().equals(String.valueOf(flightPlanInfo.getCruiseSpeed())))
+                                flightPlanInfo.setCruiseSpeed(Integer.parseInt(cruiseSpeed.getText().toString()));
+
+                            if (!departTime.getText().toString().equals(departInfo.getDepartureTime())) {
+                                departInfo.setDepartureTime(departTime.getText().toString());
+                            }
+                            if (!arriveTime.getText().toString().equals(arriveInfo.getArrivalTime())) {
+                                arriveInfo.setArrivalTime(arriveTime.getText().toString());
+                            }
+                            departureFragFileUpdater();
+                            cm.messageToaster(getActivity(), "Changes have been applied as needed to current flight plan");
+                        }
+                    })
+                    //set negative button
+                    .setNegativeButton(negBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            cm.messageToaster(getActivity(), "Your changes were not saved");
+                        }
+                    })
+                    .show();
         }
     };
 
@@ -384,18 +372,32 @@ public class DepartureFragment extends Fragment {
             String alertTitle = "New Flight Plan";
             String posBtn = "Proceed", negBtn = "Cancel";
             //Popup message to notify user of intended action
-            //Cancel new data save
-            if(!cm.showAlertDialog(getActivity(), alertTitle, alertMSG, posBtn, negBtn)){
-                cm.messageToaster(getActivity(), "Saving changes was Canceled");
-            }
-            //Perform new data save
-            else{
-                fragmentObjectUpdater();
-                if (dbMan.addDeparture(departInfo) && dbMan.addArrival(arriveInfo)) {
-                    departureFragFileUpdater();
-                }
-            }
-            //cm.messageToaster(getActivity(), "Not yet implemented");
+            new AlertDialog.Builder(getActivity())
+                    //set icon
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    //set title
+                    .setTitle(alertTitle)
+                    //set message
+                    .setMessage(alertMSG)
+                    //set positive button
+                    .setPositiveButton(posBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //Perform new data save
+                            fragmentObjectUpdater();
+                            //if (dbMan.addDeparture(departInfo) && dbMan.addArrival(arriveInfo)) {
+                                departureFragFileUpdater();
+                            //}
+                        }
+                    })
+                    //set negative button
+                    .setNegativeButton(negBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            cm.messageToaster(getActivity(), "Saving changes was Canceled");
+                        }
+                    })
+                    .show();
         }
     };
 
@@ -404,9 +406,7 @@ public class DepartureFragment extends Fragment {
         public void onClick(View view) {
             //save data from fragment to database
             fragmentObjectUpdater();
-            if(dbMan.addDeparture(departInfo) && dbMan.addArrival(arriveInfo)) {
-                departureFragFileUpdater();
-            }
+            departureFragFileUpdater();
         }
     };
 
@@ -415,7 +415,6 @@ public class DepartureFragment extends Fragment {
         public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
             departLocInfo = locList.get(lList.indexOf(departArp.getText().toString()));
             departArp.setText(departLocInfo.getAirportID() + " " + departLocInfo.getAirportName());
-            //messageToaster(String.valueOf(departLocInfo.getLocationID())+ " " + departLocInfo.getAirportID());
             if(departureRwyList.isEmpty())
                 departureRwyList.addAll(dbMan.getRwys(departLocInfo.getLocationID()));
             else{
@@ -427,9 +426,9 @@ public class DepartureFragment extends Fragment {
                 depRwyList.add(r.getName() + "   " + r.getLength() + "ft  " + r.getILS_ID()
                         + "   " + r.getILS_Freq() + "Hz   " + r.getHdg());
             }
-            depLoclist = new ArrayAdapter<String>(getContext(),
+            depLocList = new ArrayAdapter<String>(getContext(),
                     R.layout.support_simple_spinner_dropdown_item, depRwyList);
-            departRwy.setAdapter(depLoclist); //Attaches the dropdown list depLoclist to departRwy
+            departRwy.setAdapter(depLocList); //Attaches the dropdown list depLocList to departRwy
             departRwy.setDropDownWidth(900);
         }
     };
@@ -450,9 +449,9 @@ public class DepartureFragment extends Fragment {
                 arrRwyList.add(r.getName() + "   " + r.getLength() + "ft  " + r.getILS_ID()
                         + "   " + r.getILS_Freq() + "Hz   " + r.getHdg());
             }
-            arrLoclist = new ArrayAdapter<String>(getContext(),
+            arrLocList = new ArrayAdapter<String>(getContext(),
                     R.layout.support_simple_spinner_dropdown_item, arrRwyList);
-            ArrivalFragment.arriveRwy.setAdapter(arrLoclist); //Attaches the dropdown list arrLoclist to arriveRwy
+            ArrivalFragment.arriveRwy.setAdapter(arrLocList); //Attaches the dropdown list arrLocList to arriveRwy
             ArrivalFragment.arriveRwy.setDropDownWidth(900);
         }
     };
@@ -460,7 +459,29 @@ public class DepartureFragment extends Fragment {
     ///////////////////////////////   Helper Methods   /////////////////////////////////
 
     /**
-     * Replaces all the values in the textboxes of the fragment with an empty string
+     * clears the values of the departure objects
+     */
+    public static void clearDepartObjects(){
+        departInfo.backupEntityData();
+        arriveInfo.backupEntityData();
+        flightPlanInfo.backupEntityData();
+
+        departInfo.resetDeparture();
+        arriveInfo.resetArrival();
+        flightPlanInfo.resetFlightPlan();
+    }
+
+    /**
+     * restores the values of the departure objects
+     */
+    public static void restoreDepartObjects(){
+        departInfo.restoreEntityData();
+        arriveInfo.restoreEntityData();
+        flightPlanInfo.restoreEntityData();
+    }
+
+    /**
+     * Replaces all the values in the textBoxes of the fragment with an empty string
      */
     public static void clearFragValuesDisplayed(){
         departArp.setText("");
@@ -514,8 +535,7 @@ public class DepartureFragment extends Fragment {
      * Aircraft, Departure, Location, FlightPlan, and Runway
      */
     private void departureFragFileUpdater(){
-        flightPlanInfo.setArrivalID(arriveInfo.getArrivalID());
-        flightPlanInfo.setDepartureID(departInfo.getDepartureID());
+
         flightPlanInfo.setfPStatus("In Progress");
 
         ///Save data to file
@@ -526,13 +546,6 @@ public class DepartureFragment extends Fragment {
             data.add(airC.listAircrafts());
         }
         cm.saveToExternal("aircrafts.txt", data);
-
-        data.clear();
-        data.add("DEPARTURE_ID;LOCATION_ID;GATE_PARKING;DEPARTURE_TIME");
-        for(Departure dep : dbMan.getDepartures()){
-            data.add(dep.listDeparture());
-        }
-        cm.saveToExternal("departure.txt", data);
 
         data.clear();
         data.add("LOCATION_ID;AIRPORT;AIRPORT_NAME;CITY;STATE_NAME;COUNTRY");
@@ -558,6 +571,7 @@ public class DepartureFragment extends Fragment {
         }
         data.add(flightPlanInfo.listFlightPlan());
         cm.saveToExternal("flightplan.txt", data);
+        data.clear();
 
         if(saveBtn.getVisibility() == View.VISIBLE) {
             saveBtn.setVisibility(View.GONE);
@@ -568,7 +582,7 @@ public class DepartureFragment extends Fragment {
     }
 
     /**
-     * Replaces all the fragment's visible textbox values with those stored in the storage file
+     * Replaces all the fragment's visible textBox values with those stored in the storage file
      */
     public static void restoreFragValues(){
         //clearFragValuesDisplayed();
@@ -591,48 +605,40 @@ public class DepartureFragment extends Fragment {
             cruiseSpeed.setText(departFragData.get(13));
             departTime.setText(departFragData.get(14));
             arriveTime.setText(departFragData.get(15));
-            saveBtn.setVisibility(Integer.parseInt(departFragData.get(16)));
-            if(departFragData.size() > 17) {
+            //saveBtn.setVisibility(Integer.parseInt(departFragData.get(16)));
+            if(departFragData.size() > 16) {
+                saveBtn.setVisibility(Integer.parseInt(departFragData.get(16)));
                 editBtn.setVisibility(Integer.parseInt(departFragData.get(17)));
                 newBtn.setVisibility(Integer.parseInt(departFragData.get(18)));
             }
-            boolean oneEmpty = false;
-
-            for(String datum : departFragData){
-                if(!datum.isEmpty())
-                    oneEmpty = false;
-                else {
-                    oneEmpty = true;
-                    break;
-                }
-            }
+//            boolean oneEmpty = false;
+//
+//            for(String datum : departFragData){
+//                if(datum.isEmpty()){
+//                    oneEmpty = true;
+//                    break;
+//                }
+//            }
 
             //Does not update the instance if even one of its attributes is empty
-            if(!oneEmpty)/*(!cruiseAltitude.getText().toString().isEmpty() || !flightDistEst.getText().toString().isEmpty() ||
-                    !flightTimeEst.getText().toString().isEmpty() || !departFuel.getText().toString().isEmpty())
-                if(!fuelWeight.getText().toString().isEmpty() || !grossWeight.getText().toString().isEmpty() ||
-                    !payloadWeight.getText().toString().isEmpty() || !climbSpeed.getText().toString().isEmpty())
-                    if(!cruiseSpeed.getText().toString().isEmpty() )*/ {
-                        flightPlanInfo.setCruiseAltitude(Integer.parseInt(cruiseAltitude.getText().toString()));
-                        flightPlanInfo.setTripDistanceEstimate(Float.parseFloat(flightDistEst.getText().toString()));
-                        flightPlanInfo.setTripDurationEstimate(flightTimeEst.getText().toString());
-                        flightPlanInfo.setFuelTaken(Float.parseFloat(departFuel.getText().toString()));
-                        flightPlanInfo.setFuelWeight(Float.parseFloat(fuelWeight.getText().toString()));
-                        flightPlanInfo.setGrossWeight(Float.parseFloat(grossWeight.getText().toString()));
-                        flightPlanInfo.setPayloadWeight(Float.parseFloat(payloadWeight.getText().toString()));
-                        flightPlanInfo.setClimbSpeed(Integer.parseInt(climbSpeed.getText().toString()));
-                        flightPlanInfo.setCruiseSpeed(Integer.parseInt(cruiseSpeed.getText().toString()));
+            //if(!oneEmpty){
+                flightPlanInfo.setCruiseAltitude(Integer.parseInt(cruiseAltitude.getText().toString().isEmpty() ? "0" : cruiseAltitude.getText().toString()));
+                flightPlanInfo.setTripDistanceEstimate(Float.parseFloat(flightDistEst.getText().toString().isEmpty() ? "0" : flightDistEst.getText().toString()));
+                flightPlanInfo.setTripDurationEstimate(flightTimeEst.getText().toString());
+                flightPlanInfo.setFuelTaken(Float.parseFloat(departFuel.getText().toString().isEmpty()? "0" : departFuel.getText().toString()));
+                flightPlanInfo.setFuelWeight(Float.parseFloat(fuelWeight.getText().toString().isEmpty() ? "0" : fuelWeight.getText().toString()));
+                flightPlanInfo.setGrossWeight(Float.parseFloat(grossWeight.getText().toString().isEmpty() ? "0" : grossWeight.getText().toString()));
+                flightPlanInfo.setPayloadWeight(Float.parseFloat(payloadWeight.getText().toString().isEmpty() ? "0" : payloadWeight.getText().toString()));
+                flightPlanInfo.setClimbSpeed(Integer.parseInt(climbSpeed.getText().toString().isEmpty() ? "0" : climbSpeed.getText().toString()));
+                flightPlanInfo.setCruiseSpeed(Integer.parseInt(cruiseSpeed.getText().toString().isEmpty() ? "0" : cruiseSpeed.getText().toString()));
 
-                        departInfo.setLocationID(departLocInfo.getLocationID());
-                        departInfo.setDepartureTime(departFragData.get(14));
-                        departInfo.setGateParkingName(departFragData.get(2));
-                        arriveInfo.setLocationID(arriveLocInfo.getLocationID());
-                        arriveInfo.setArrivalTime(departFragData.get(15));
-                        arriveInfo.setGateParking(departFragData.get(3));
-//                        departInfo.setGateParkingName(departGate.getText().toString());
-//                        arriveInfo.setGateParking(arriveGate.getText().toString());
-                        //saveBtn.setVisibility(View.GONE);
-                    }
+                departInfo.setLocationID(departLocInfo.getLocationID());
+                departInfo.setDepartureTime(departFragData.get(14));
+                departInfo.setGateParkingName(departFragData.get(2));
+                arriveInfo.setLocationID(arriveLocInfo.getLocationID());
+                arriveInfo.setArrivalTime(departFragData.get(15));
+                arriveInfo.setGateParking(departFragData.get(3));
+            //}
             departFragData.clear();
         }
     }
@@ -645,13 +651,11 @@ public class DepartureFragment extends Fragment {
      * Populates the choice list for the dropdown list of an autocomplete text editor
      */
     private void dropdownList(){
-        ArrayAdapter<String> arplist = new ArrayAdapter<String>(getContext(),
+        ArrayAdapter<String> arpList = new ArrayAdapter<String>(getContext(),
                 R.layout.support_simple_spinner_dropdown_item, lList);
 
-        departArp.setAdapter(arplist); //Attaches the dropdown list Ulist to TopUnit
-        //departArp.setMinimumWidth(500);
-        arriveArp.setAdapter(arplist); //Attaches the dropdown list Ulist to DownUnit
-        //arriveArp.setMinimumWidth(500);
+        departArp.setAdapter(arpList); //Attaches the dropdown list arpList to departArp
+        arriveArp.setAdapter(arpList); //Attaches the dropdown list arpList to arriveArp
 
         departArp.setDropDownWidth(900);
         arriveArp.setDropDownWidth(900);

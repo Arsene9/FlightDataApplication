@@ -153,7 +153,7 @@ public class ActualTable {
             return updated;
         }
         catch(SQLiteConstraintException e){
-            Log.e("Update record",e.toString());
+            Log.e("Update record fail",e.toString());
             return false;
         }
     }

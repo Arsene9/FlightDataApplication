@@ -116,6 +116,21 @@ public class ActualData {
     }
 
     /**
+     * Re-initializes the values of Actual parameters.
+     * Sets the values of Actual object to 0 or null
+     */
+    public void resetActual(){
+        this.actual_ID = 0;
+        this.departureTime = null;
+        this.arrivalTime = null;
+        this.fuelBalance = 0;
+        this.fuelUsed = 0;
+        this.totalTripDuration = null;
+        this.totalTripDistance = 0;
+        this.gateParkingName = null;
+    }
+    
+    /**
      * Stores the data of ActualData into an internal file
      * @return true if the action was successful and false when it fails
      */
@@ -143,14 +158,26 @@ public class ActualData {
         if(!data.isEmpty()) {
             restored = true;
             String[] dList = data.get(0).split(";");
-            this.actual_ID = Long.parseLong(dList[0]);
-            this.departureTime = dList[1];
-            this.arrivalTime = dList[2];
-            this.fuelBalance = Float.parseFloat(dList[3]);
-            this.fuelUsed = Float.parseFloat(dList[4]);
-            this.totalTripDuration = dList[5];
-            this.totalTripDistance = Float.parseFloat(dList[6]);
-            this.gateParkingName = dList[7];
+            try {
+                this.actual_ID = Long.parseLong(dList[0]);
+                this.departureTime = dList[1];
+                this.arrivalTime = dList[2];
+                this.fuelBalance = Float.parseFloat(dList[3]);
+                this.fuelUsed = Float.parseFloat(dList[4]);
+                this.totalTripDuration = dList[5];
+                this.totalTripDistance = Float.parseFloat(dList[6]);
+                if (data.size() > 7)  //This is to take care of an empty value at the end
+                    this.gateParkingName = dList[7];
+            }
+            catch (IndexOutOfBoundsException e){
+                this.departureTime = "";
+                this.arrivalTime = "";
+                this.fuelBalance = 0;
+                this.fuelUsed = 0;
+                this.totalTripDuration = "";
+                this.totalTripDistance = 0;
+                this.gateParkingName = "";
+            }
         }
         return restored;
     }

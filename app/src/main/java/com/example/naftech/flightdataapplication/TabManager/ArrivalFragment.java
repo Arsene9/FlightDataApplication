@@ -1,10 +1,12 @@
 package com.example.naftech.flightdataapplication.TabManager;
 
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,21 +29,20 @@ import java.util.Locale;
 
 import BusinessObjectLayer.ActualData;
 import BusinessObjectLayer.Arrival;
+import BusinessObjectLayer.Departure;
 import BusinessObjectLayer.FlightPlan;
 import DatabaseLayer.DatabaseManager;
 
 public class ArrivalFragment extends Fragment {
 
     public static AutoCompleteTextView arriveRwy, actDepartTime, actArriveTime, actTripTime,
-            fuelLeft, fuelused, totalDistance, arrivalGateParking;
+            fuelLeft, fuelUsed, totalDistance, arrivalGateParking;
     private static Button saveButton, editButton, newButton;
 
     private DatabaseManager dbMan;
     private static ActualData actualInfo;
     private Calendar calendar;
     private TimePickerDialog timePicker;
-    //private static final String FILE_NAME = "example.txt";
-    //private String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/TestData";
     private static CommonMethod cm;
 
     @Override
@@ -64,7 +65,7 @@ public class ArrivalFragment extends Fragment {
         arrivalFragData.add(actArriveTime.getText().toString());
         arrivalFragData.add(actTripTime.getText().toString());
         arrivalFragData.add(fuelLeft.getText().toString());
-        arrivalFragData.add(fuelused.getText().toString());
+        arrivalFragData.add(fuelUsed.getText().toString());
         arrivalFragData.add(totalDistance.getText().toString());
         arrivalFragData.add(arrivalGateParking.getText().toString());
         arrivalFragData.add(String.valueOf(saveButton.getVisibility()));
@@ -89,7 +90,7 @@ public class ArrivalFragment extends Fragment {
         actArriveTime = view.findViewById(R.id.actualArrivalTimeACTV);
         actTripTime = view.findViewById(R.id.totalTripTimeACTV2);
         fuelLeft = view.findViewById(R.id.fuelLeftACTV);
-        fuelused = view.findViewById(R.id.fuelUsedACTV);
+        fuelUsed = view.findViewById(R.id.fuelUsedACTV);
         totalDistance = view.findViewById(R.id.totalTripDistanceACTV);
         arrivalGateParking = view.findViewById(R.id.arrivalGateACTV3);
         saveButton = view.findViewById(R.id.saveDataButton);
@@ -105,14 +106,8 @@ public class ArrivalFragment extends Fragment {
         actArriveTime.setOnClickListener(addArrivalEstimatedTime);
         actDepartTime.setOnClickListener(onDepartTimeEditTextClick);
         actTripTime.setOnClickListener(onTripDurationEditTextClick);
-        fuelused.setOnClickListener(addFuelUsed);
+        fuelUsed.setOnClickListener(addFuelUsed);
         arrivalGateParking.setOnClickListener(onGateClick);
-
-//        File dir = new File(path);
-//        dir.mkdir();
-
-
-        //copyDatabase ("FlightPlan");
 
         return view;
     }
@@ -172,7 +167,7 @@ public class ArrivalFragment extends Fragment {
                 float fOnDep = DepartureFragment.getFlightPlanInfo().getFuelTaken();
                 float fLeft = Float.parseFloat(fuelLeft.getText().toString());
                 float fuelU = fOnDep - fLeft;
-                fuelused.setText( String.valueOf(fuelU));
+                fuelUsed.setText( String.valueOf(fuelU));
             }
         }
     };
@@ -181,7 +176,6 @@ public class ArrivalFragment extends Fragment {
 
         @Override
         public void onClick(View view) {
-            //cm.messageToaster(getContext(), actDepartTime.getText().toString()+ " " + actTripTime.getText().toString());
             if(!actDepartTime.getText().toString().isEmpty() && !actTripTime.getText().toString().isEmpty()) {
                 if(actDepartTime.getText().toString().contains("/")){
                     String dTime = actDepartTime.getText().toString().replaceFirst("(0[1-9]|1[012])/(0[1-9]|[123][0-9])/([1-9][0-9][0-9][0-9]) ", "");
@@ -232,28 +226,45 @@ public class ArrivalFragment extends Fragment {
             String alertTitle = "Edit Flight Plan";
             String posBtn = "Proceed", negBtn = "Cancel";
             //Popup message to notify user of intended action
-            //Cancel new data save
-            if (!cm.showAlertDialog(getActivity(), alertTitle, alertMSG, posBtn, negBtn)) {
-                cm.messageToaster(getActivity(), "Your changes were not saved");
-            }
-            //Perform new data save
-            else {
-                //Perform edit data on database
-                if (!actDepartTime.getText().equals(actualInfo.getDepartureTime()))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actDepartTime.getText().toString(), "Departure_Time");
-                if (!actArriveTime.getText().equals(actualInfo.getArrivalTime()))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actArriveTime.getText().toString(), "Arrival_Time");
-                if (!actTripTime.getText().equals(actualInfo.getTotalTripDuration()))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actTripTime.getText().toString(), "Total_Trip_Duration");
-                if (!fuelLeft.getText().equals(String.valueOf(actualInfo.getFuelBalance())))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), fuelLeft.getText().toString(), "Fuel_Balance");
-                if (!fuelused.getText().equals(String.valueOf(actualInfo.getFuelUsed())))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), fuelused.getText().toString(), "Fuel_Used");
-                if (!totalDistance.getText().equals(String.valueOf(actualInfo.getTotalTripDistance())))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), totalDistance.getText().toString(), "Total_Trip_Distance");
-                if (!arrivalGateParking.getText().equals(actualInfo.getGateParkingName()))
-                    dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), totalDistance.getText().toString(), "Gate_Parking_Name");
-            }
+            new AlertDialog.Builder(getActivity())
+                    //set icon
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    //set title
+                    .setTitle(alertTitle)
+                    //set message
+                    .setMessage(alertMSG)
+                    //set positive button
+                    .setPositiveButton(posBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //Perform edit data on database
+                            if (!actDepartTime.getText().toString().equals(actualInfo.getDepartureTime()))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actDepartTime.getText().toString(), "Departure_Time");
+                            if (!actArriveTime.getText().toString().equals(actualInfo.getArrivalTime()))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actArriveTime.getText().toString(), "Arrival_Time");
+                            if (!actTripTime.getText().toString().equals(actualInfo.getTotalTripDuration()))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), actTripTime.getText().toString(), "Total_Trip_Duration");
+                            if (!fuelLeft.getText().toString().equals(String.valueOf(actualInfo.getFuelBalance())))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), fuelLeft.getText().toString(), "Fuel_Balance");
+                            if (!fuelUsed.getText().toString().equals(String.valueOf(actualInfo.getFuelUsed())))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), fuelUsed.getText().toString(), "Fuel_Used");
+                            if (!totalDistance.getText().toString().equals(String.valueOf(actualInfo.getTotalTripDistance())))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), totalDistance.getText().toString(), "Total_Trip_Distance");
+                            if (!arrivalGateParking.getText().toString().equals(actualInfo.getGateParkingName()))
+                                dbMan.updateActual(String.valueOf(actualInfo.getActual_ID()), arrivalGateParking.getText().toString(), "Gate_Parking_Name");
+                            updateActualFDObject();
+                            flightPlanFileUpdate();
+                            cm.messageToaster(getActivity(), "Your changes have been applied as needed to the current flight plan");
+                        }
+                    })
+                    //set negative button
+                    .setNegativeButton(negBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            cm.messageToaster(getActivity(), "Your changes were not saved");
+                        }
+                    })
+                    .show();
         }
     };
 
@@ -266,15 +277,31 @@ public class ArrivalFragment extends Fragment {
             String alertMSG = "You are about to save this dataset as part of a new flight plan!";
             String alertTitle = "New Flight Plan";
             String posBtn = "Proceed", negBtn = "Cancel";
+
             //Popup message to notify user of intended action
-            //Cancel new data save
-            if(!cm.showAlertDialog(getActivity(), alertTitle, alertMSG, posBtn, negBtn)){
-                cm.messageToaster(getActivity(), "Saving changes was Canceled");
-            }
-            //Perform new data save
-            else {
-                saveToCompleteFlightPlan();
-            }
+            new android.app.AlertDialog.Builder(getActivity())
+                    //set icon
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    //set title
+                    .setTitle(alertTitle)
+                    //set message
+                    .setMessage(alertMSG)
+                    //set positive button
+                    .setPositiveButton(posBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            //Perform new data save
+                           saveToCompleteFlightPlan();
+                        }
+                    })
+                    //set negative button
+                    .setNegativeButton(negBtn, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            cm.messageToaster(getActivity(), "Saving changes was Canceled");
+                        }
+                    })
+                    .show();
         }
     };
 
@@ -288,13 +315,28 @@ public class ArrivalFragment extends Fragment {
     ////////////////////////////////////  Helper Methods   /////////////////////////////////////////
 
     /**
+     * clears the values of the Actual object
+     */
+    public static void clearActualObject(){
+        actualInfo.backupEntityData();
+        actualInfo.resetActual();
+    }
+
+    /**
+     * restores the values of the Actual objects
+     */
+    public static void restoreActualObject(){
+        actualInfo.restoreEntityData();
+    }
+
+    /**
      * Puts the data from the textboxes into the data object for Actual Flight Data
      */
-    private void updataeActualFDObject(){
+    private void updateActualFDObject(){
         actualInfo.setArrivalTime(actArriveTime.getText().toString());
         actualInfo.setTotalTripDuration(actTripTime.getText().toString());
         actualInfo.setFuelBalance(Float.parseFloat(fuelLeft.getText().toString()));
-        actualInfo.setFuelUsed(Float.parseFloat(fuelused.getText().toString()));
+        actualInfo.setFuelUsed(Float.parseFloat(fuelUsed.getText().toString()));
         actualInfo.setTotalTripDistance(Float.parseFloat(totalDistance.getText().toString()));
         actualInfo.setGateParkingName(arrivalGateParking.getText().toString());
 
@@ -303,7 +345,7 @@ public class ArrivalFragment extends Fragment {
     /**
      * Saves the data into the database and external files as required
      */
-    private void saveFinalDataSet(){
+    private void flightPlanFileUpdate(){
         List<String> data = new ArrayList<>();
         data.add("FLIGHT_PLAN_ID;ESTIMATE_TRIP_TIME;DEPARTURE_FUEL;AIRCRAFT;DEPARTURE" +
                 ";ARRIVAL;ACTUAL_NUMBERS;ESTIMATE_TRIP_DISTANCE;CLIMB_SPEED;CRUISE_SPEED;" +
@@ -322,11 +364,19 @@ public class ArrivalFragment extends Fragment {
         cm.saveToExternal("actualdata.txt", data);
 
         data.clear();
+        data.add("DEPARTURE_ID;LOCATION_ID;GATE_PARKING;DEPARTURE_TIME");
+        for(Departure dep : dbMan.getDepartures()){
+            data.add(dep.listDeparture());
+        }
+        cm.saveToExternal("departure.txt", data);
+
+        data.clear();
         data.add("ARRIVAL_ID;LOCATION_ID;GATE_PARKING;ARRIVAL_TIME");
         for(Arrival arr : dbMan.getArrivals()){
             data.add(arr.listArrival());
         }
         cm.saveToExternal("arrival.txt", data);
+        data.clear();
 
         saveButton.setVisibility(View.GONE);
         editButton.setVisibility(View.VISIBLE);
@@ -338,18 +388,22 @@ public class ArrivalFragment extends Fragment {
      * Saves all arrival and actual data
      */
     private void saveToCompleteFlightPlan(){
-        updataeActualFDObject();
-        if(dbMan.addActualData(actualInfo)) {
+        updateActualFDObject();
+        if(dbMan.addDeparture(DepartureFragment.departInfo)
+                && dbMan.addArrival(DepartureFragment.arriveInfo)
+                && dbMan.addActualData(actualInfo)) {
+            DepartureFragment.getFlightPlanInfo().setArrivalID(DepartureFragment.arriveInfo.getArrivalID());
+            DepartureFragment.getFlightPlanInfo().setDepartureID(DepartureFragment.departInfo.getDepartureID());
             DepartureFragment.getFlightPlanInfo().setActualID(actualInfo.getActual_ID());
             DepartureFragment.getFlightPlanInfo().setfPStatus("Completed");
             if(dbMan.addFlightPlan(DepartureFragment.getFlightPlanInfo())) {
-                saveFinalDataSet();
+                flightPlanFileUpdate();
             }
         }
     }
 
     /**
-     * Replaces all the values in the textboxes of the fragment with an empty string
+     * Replaces all the values in the textBoxes of the fragment with an empty string
      */
     public static void clearFragValuesDisplayed(){
         arriveRwy.setText("");
@@ -357,7 +411,7 @@ public class ArrivalFragment extends Fragment {
         actArriveTime.setText("");
         actTripTime.setText("");
         fuelLeft.setText("");
-        fuelused.setText("");
+        fuelUsed.setText("");
         totalDistance.setText("");
         arrivalGateParking.setText("");
 
@@ -369,7 +423,7 @@ public class ArrivalFragment extends Fragment {
     }
 
     /**
-     * Replaces all the fragment's visible textbox values with those stored in the storage file
+     * Replaces all the fragment's visible textBox values with those stored in the storage file
      */
     public static void restoreFragValues(){
         if(cm.getInternalFileData(activityDataFileName) != null) {
@@ -379,35 +433,36 @@ public class ArrivalFragment extends Fragment {
             actArriveTime.setText(arrivalFragData.get(2));
             actTripTime.setText(arrivalFragData.get(3));
             fuelLeft.setText(arrivalFragData.get(4));
-            fuelused.setText(arrivalFragData.get(5));
+            fuelUsed.setText(arrivalFragData.get(5));
             totalDistance.setText(arrivalFragData.get(6));
             arrivalGateParking.setText(arrivalFragData.get(7));
-            saveButton.setVisibility(Integer.parseInt(arrivalFragData.get(8)));
-            if(arrivalFragData.size() > 9) {
+            //saveButton.setVisibility(Integer.parseInt(arrivalFragData.get(8)));
+            if(arrivalFragData.size() > 8) {
+                saveButton.setVisibility(Integer.parseInt(arrivalFragData.get(8)));
                 editButton.setVisibility(Integer.parseInt(arrivalFragData.get(9)));
                 newButton.setVisibility(Integer.parseInt(arrivalFragData.get(10)));
             }
 
-            boolean oneEmpty = false;
+//            boolean oneEmpty = false;
+//
+//            for(String datum : arrivalFragData){
+//                if(!datum.isEmpty())
+//                    oneEmpty = false;
+//                else {
+//                    oneEmpty = true;
+//                    break;
+//                }
+//            }
 
-            for(String datum : arrivalFragData){
-                if(!datum.isEmpty())
-                    oneEmpty = false;
-                else {
-                    oneEmpty = true;
-                    break;
-                }
-            }
-
-            if(!oneEmpty){
+//            if(!oneEmpty){
                 actualInfo.setDepartureTime(arrivalFragData.get(1));
                 actualInfo.setArrivalTime(arrivalFragData.get(2));
                 actualInfo.setTotalTripDuration(arrivalFragData.get(3));
-                actualInfo.setFuelBalance(Float.parseFloat(arrivalFragData.get(4)));
-                actualInfo.setFuelUsed(Float.parseFloat(arrivalFragData.get(5)));
-                actualInfo.setTotalTripDistance(Float.parseFloat(arrivalFragData.get(6)));
+                actualInfo.setFuelBalance(Float.parseFloat(arrivalFragData.get(4).isEmpty() ? "0" : arrivalFragData.get(4)));
+                actualInfo.setFuelUsed(Float.parseFloat(arrivalFragData.get(5).isEmpty() ? "0" : arrivalFragData.get(5)));
+                actualInfo.setTotalTripDistance(Float.parseFloat(arrivalFragData.get(6).isEmpty() ? "0" : arrivalFragData.get(6)));
                 actualInfo.setGateParkingName(arrivalFragData.get(7));
-            }
+//            }
 
 
             arrivalFragData.clear();

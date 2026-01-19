@@ -198,6 +198,28 @@ public class FlightPlan {
     }
 
     /**
+     * Re-initializes the values of Flight Plan parameters.
+     * Sets the values of Flight Plan object to 0 or null
+     */
+    public void resetFlightPlan(){
+        this.flightPlanID = 0;
+        this.tripDurationEstimate = null;
+        this.fuelTaken = 0;
+        this.aircraftID = 0;
+        this.departureID = 0;
+        this.arrivalID = 0;
+        this.actualID = 0;
+        this.tripDistanceEstimate = 0;
+        this.climbSpeed = 0;
+        this.cruiseSpeed = 0;
+        this.cruiseAltitude = 0;
+        this.payloadWeight = 0;
+        this.fuelWeight = 0;
+        this.grossWeight = 0;
+        this.fPStatus = null;
+    }
+
+    /**
      * Stores the data of FlightPlan into an internal file
      * @return true if the action was successful and false when it fails
      */
@@ -225,21 +247,40 @@ public class FlightPlan {
         if(!data.isEmpty()) {
             restored = true;
             String[] dList = data.get(0).split(";");
-            this.tripDurationEstimate = dList[1];
-            this.fuelTaken = Float.parseFloat(dList[2]);
-            this.aircraftID = Long.parseLong(dList[3]);
-            this.departureID = Long.parseLong(dList[4]);
-            this.arrivalID = Long.parseLong(dList[5]);
-            this.actualID = Long.parseLong(dList[6]);
-            this.tripDistanceEstimate = Float.parseFloat(dList[7]);
-            this.climbSpeed = Integer.parseInt(dList[8]);
-            this.cruiseSpeed = Integer.parseInt(dList[9]);
-            this.cruiseAltitude = Integer.parseInt(dList[10]);
-            this.payloadWeight = Float.parseFloat(dList[11]);
-            this.fuelWeight = Float.parseFloat(dList[12]);
-            this.grossWeight = Float.parseFloat(dList[13]);
-            if(dList.length > 14)
-                this.fPStatus = dList[14];
+            try {
+                this.flightPlanID = Long.parseLong(dList[0]);
+                this.tripDurationEstimate = dList[1];
+                this.fuelTaken = Float.parseFloat(dList[2]);
+                this.aircraftID = Long.parseLong(dList[3]);
+                this.departureID = Long.parseLong(dList[4]);
+                this.arrivalID = Long.parseLong(dList[5]);
+                this.actualID = Long.parseLong(dList[6]);
+                this.tripDistanceEstimate = Float.parseFloat(dList[7]);
+                this.climbSpeed = Integer.parseInt(dList[8]);
+                this.cruiseSpeed = Integer.parseInt(dList[9]);
+                this.cruiseAltitude = Integer.parseInt(dList[10]);
+                this.payloadWeight = Float.parseFloat(dList[11]);
+                this.fuelWeight = Float.parseFloat(dList[12]);
+                this.grossWeight = Float.parseFloat(dList[13]);
+                if (dList.length > 14)
+                    this.fPStatus = dList[14];
+            }
+            catch(IndexOutOfBoundsException e){
+                this.tripDurationEstimate = "";
+                this.fuelTaken = 0;
+                this.aircraftID = 0;
+                this.departureID = 0;
+                this.arrivalID = 0;
+                this.actualID = 0;
+                this.tripDistanceEstimate = 0;
+                this.climbSpeed = 0;
+                this.cruiseSpeed = 0;
+                this.cruiseAltitude = 0;
+                this.payloadWeight = 0;
+                this.fuelWeight = 0;
+                this.grossWeight = 0;
+                this.fPStatus = "";
+            }
         }
         return restored;
     }
