@@ -586,9 +586,10 @@ public class DepartureFragment extends Fragment {
      */
     public static void restoreFragValues(){
         //clearFragValuesDisplayed();
-        if(cm.getInternalFileData(activityDataFileName) != null) {
+        List<String> data = cm.getInternalFileData(activityDataFileName);
+        if(data != null && data.size() >= 16) {
             departFragData.clear();
-            departFragData.addAll(cm.getInternalFileData(activityDataFileName));
+            departFragData.addAll(data);
             departArp.setText(departFragData.get(0));
             arriveArp.setText(departFragData.get(1));
             departGate.setText(departFragData.get(2));

@@ -201,8 +201,10 @@ public class AircraftFragment extends Fragment {
      * Replaces all the fragment's visible textBox values with those stored in the storage file
      */
     public static void restoreFragValues(){
-        if(cm.getInternalFileData(activityDataFileName) != null) {
-            aircratFragData.addAll(cm.getInternalFileData(activityDataFileName));
+        List<String> data = cm.getInternalFileData(activityDataFileName);
+        if(data != null && data.size() >= 6) {
+            aircratFragData.clear();
+            aircratFragData.addAll(data);
             airlineNACTV.setText(aircratFragData.get(0));
             aircraftTypeACTV.setText(aircratFragData.get(1));
             manufACTV.setText(aircratFragData.get(2));

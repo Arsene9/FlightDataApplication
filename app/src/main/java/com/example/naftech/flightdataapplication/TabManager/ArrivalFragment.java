@@ -426,8 +426,10 @@ public class ArrivalFragment extends Fragment {
      * Replaces all the fragment's visible textBox values with those stored in the storage file
      */
     public static void restoreFragValues(){
-        if(cm.getInternalFileData(activityDataFileName) != null) {
-            arrivalFragData.addAll(cm.getInternalFileData(activityDataFileName));
+        List<String> data = cm.getInternalFileData(activityDataFileName);
+        if(data != null && data.size() >= 8) {
+            arrivalFragData.clear();
+            arrivalFragData.addAll(data);
             arriveRwy.setText(arrivalFragData.get(0));
             actDepartTime.setText(arrivalFragData.get(1));
             actArriveTime.setText(arrivalFragData.get(2));
